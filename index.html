@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🐠 语法钓鱼大冒险 - 现在进行时</title>
+    <title>🦖 语法打怪大冒险 - 现在进行时</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Comic Sans MS', 'YouYuan', cursive, sans-serif;
-            background: linear-gradient(180deg, #1E90FF 0%, #00BFFF 50%, #87CEEB 100%);
+            background: linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -19,14 +19,14 @@
         .game-container {
             background: rgba(255,255,255,0.95);
             border-radius: 30px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
             max-width: 600px;
             width: 100%;
             overflow: hidden;
-            border: 5px solid #1E90FF;
+            border: 5px solid #e94560;
         }
         .header {
-            background: linear-gradient(90deg, #1E90FF 0%, #00CED1 100%);
+            background: linear-gradient(90deg, #e94560 0%, #ff6b6b 100%);
             padding: 12px;
             text-align: center;
             color: white;
@@ -36,141 +36,171 @@
         .stat-item { background: rgba(255,255,255,0.3); padding: 5px 10px; border-radius: 12px; }
         .content { padding: 15px; }
         
-        /* 钓鱼场景 */
-        .fishing-scene {
+        .battle-scene {
             position: relative;
-            height: 280px;
-            background: linear-gradient(180deg, #87CEEB 0%, #1E90FF 60%, #006088 100%);
+            height: 200px;
+            background: linear-gradient(180deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%);
             border-radius: 20px;
             margin-bottom: 15px;
             overflow: hidden;
         }
-        .ocean-floor {
+        .battle-ground {
             position: absolute;
             bottom: 0;
             width: 100%;
-            height: 40px;
-            background: #C2B280;
+            height: 25px;
+            background: #2d3436;
         }
-        .seaweed {
-            position: absolute;
-            bottom: 30px;
-            font-size: 2em;
-            animation: sway 3s ease-in-out infinite;
-        }
-        @keyframes sway { 0%, 100% { transform: rotate(-5deg); } 50% { transform: rotate(5deg); } }
-        .bubble {
-            position: absolute;
-            width: 10px;
-            height: 10px;
-            background: rgba(255,255,255,0.6);
-            border-radius: 50%;
-            animation: rise 4s linear infinite;
-        }
-        @keyframes rise { 0% { bottom: 0; opacity: 0; } 50% { opacity: 1; } 100% { bottom: 300px; opacity: 0; } }
         
-        /* 鱼 */
-        .fish {
+        .player {
             position: absolute;
-            font-size: 2.5em;
-            transition: all 0.5s;
-            cursor: pointer;
-            animation: swim 2s ease-in-out infinite;
+            bottom: 20px;
+            left: 20px;
+            font-size: 2.2em;
+            transition: all 0.3s;
+            z-index: 10;
         }
-        @keyframes swim { 0%, 100% { transform: translateY(0) scaleX(1); } 50% { transform: translateY(-10px) scaleX(1); } }
-        .fish.caught { animation: caught 0.5s forwards; }
-        @keyframes caught { 0% { transform: scale(1); } 100% { transform: scale(0) translateY(-50px); opacity: 0; } }
-        .fish.escaped { animation: escaped 0.5s forwards; }
-        @keyframes escaped { 0% { transform: translateX(0); } 100% { transform: translateX(200px); opacity: 0; } }
+        .player.attacking {
+            animation: playerAttack 0.4s ease-in-out;
+        }
+        @keyframes playerAttack {
+            0% { left: 20px; transform: scaleX(1); }
+            50% { left: 180px; transform: scaleX(1); }
+            100% { left: 20px; transform: scaleX(1); }
+        }
         
-        /* 钓鱼竿 */
-        .fishing-rod {
+        .player-sword {
             position: absolute;
-            top: 10px;
-            right: 20px;
-            font-size: 2.5em;
-            transform: rotate(-30deg);
-            transition: transform 0.3s;
-        }
-        .fishing-rod.casting { transform: rotate(0deg); }
-        .fishing-line {
-            position: absolute;
-            top: 40px;
-            right: 45px;
-            width: 2px;
-            height: 0;
-            background: #fff;
-            transition: height 0.5s;
-        }
-        .fishing-line.cast { height: 150px; }
-        .hook {
-            position: absolute;
-            top: 0;
-            right: -6px;
-            font-size: 1.2em;
+            left: 60px;
+            bottom: 35px;
+            font-size: 1.8em;
             opacity: 0;
-            transition: opacity 0.3s;
+            z-index: 11;
         }
-        .fishing-line.cast .hook { opacity: 1; }
+        .player-sword.slash {
+            animation: swordSlash 0.4s ease-in-out;
+        }
+        @keyframes swordSlash {
+            0% { opacity: 0; left: 60px; transform: rotate(0deg); }
+            30% { opacity: 1; left: 150px; transform: rotate(-30deg); }
+            60% { opacity: 1; left: 180px; transform: rotate(30deg); }
+            100% { opacity: 0; left: 200px; transform: rotate(0deg); }
+        }
         
-        /* 钓到的鱼显示 */
-        .caught-fish-display {
+        .monster {
             position: absolute;
-            top: 50px;
+            bottom: 20px;
             right: 20px;
-            font-size: 2em;
-            opacity: 0;
-            transition: all 0.5s;
+            transition: all 0.3s;
+            z-index: 10;
         }
-        .caught-fish-display.show { opacity: 1; animation: bounce 0.5s; }
+        .monster.hit {
+            animation: monsterHit 0.5s ease-in-out;
+        }
+        @keyframes monsterHit {
+            0% { transform: translateX(0); filter: brightness(1); }
+            20% { transform: translateX(-20px); filter: brightness(2) sepia(1) hue-rotate(-50deg); }
+            40% { transform: translateX(10px); filter: brightness(1.5); }
+            60% { transform: translateX(-10px); filter: brightness(1.8); }
+            80% { transform: translateX(5px); filter: brightness(1.2); }
+            100% { transform: translateX(0); filter: brightness(1); }
+        }
+        .monster.defeated {
+            animation: monsterDefeated 0.8s forwards;
+        }
+        @keyframes monsterDefeated {
+            0% { transform: scale(1) rotate(0deg); opacity: 1; }
+            50% { transform: scale(1.3) rotate(15deg); }
+            100% { transform: scale(0) rotate(30deg); opacity: 0; bottom: -50px; }
+        }
         
-        /* 分数弹出 */
-        .score-popup {
+        .attack-text {
             position: absolute;
             font-size: 1.5em;
             font-weight: bold;
-            color: #FFD700;
-            text-shadow: 2px 2px 0 #000;
-            animation: popUp 1s forwards;
-            pointer-events: none;
+            color: #ffd700;
+            text-shadow: 2px 2px 0 #e94560, -1px -1px 0 #000;
+            opacity: 0;
+            z-index: 20;
         }
-        @keyframes popUp { 0% { transform: scale(0); opacity: 0; } 50% { transform: scale(1.2); opacity: 1; } 100% { transform: translateY(-50px) scale(1); opacity: 0; } }
+        .attack-text.show {
+            animation: attackTextAnim 0.8s forwards;
+        }
+        @keyframes attackTextAnim {
+            0% { opacity: 0; transform: translateY(0) scale(0.5); }
+            30% { opacity: 1; transform: translateY(-20px) scale(1.2); }
+            100% { opacity: 0; transform: translateY(-60px) scale(1); }
+        }
         
-        /* 问题区域 */
+        .hp-bar {
+            position: absolute;
+            top: 5px;
+            right: 15px;
+            width: 70px;
+            height: 8px;
+            background: #333;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .hp-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #e94560, #ff6b6b);
+            transition: width 0.3s;
+        }
+        
+        .star {
+            position: absolute;
+            color: #fff;
+            font-size: 0.7em;
+            animation: twinkle 2s infinite;
+        }
+        @keyframes twinkle { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+        
+        .level-display {
+            position: absolute;
+            top: 5px;
+            left: 10px;
+            background: rgba(233, 69, 96, 0.9);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+        
         .question-area {
-            background: linear-gradient(135deg, #E0F7FA 0%, #B2EBF2 100%);
+            background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
             border-radius: 15px;
             padding: 15px;
             margin-bottom: 12px;
-            border: 3px solid #1E90FF;
+            border: 3px solid #e94560;
         }
-        .question-text { font-size: 1.15em; color: #333; margin-bottom: 10px; font-weight: bold; text-align: center; }
+        .question-text { font-size: 1.05em; color: #333; margin-bottom: 10px; font-weight: bold; text-align: center; }
         .options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
         .option-btn {
             background: white;
-            border: 3px solid #1E90FF;
+            border: 3px solid #e94560;
             padding: 10px;
             border-radius: 12px;
-            font-size: 0.95em;
+            font-size: 0.9em;
             cursor: pointer;
             font-family: inherit;
             transition: all 0.2s;
         }
-        .option-btn:hover { background: #1E90FF; color: white; }
-        .option-btn.correct { background: #32CD32; border-color: #32CD32; color: white; }
-        .option-btn.wrong { background: #FF6B6B; border-color: #FF6B6B; color: white; }
-        .feedback { text-align: center; font-size: 1em; margin-top: 10px; min-height: 25px; font-weight: bold; }
-        .feedback.correct { color: #228B22; }
-        .feedback.wrong { color: #FF6B6B; }
+        .option-btn:hover { background: #e94560; color: white; }
+        .option-btn.correct { background: #00b894; border-color: #00b894; color: white; }
+        .option-btn.wrong { background: #d63031; border-color: #d63031; color: white; }
+        .feedback { text-align: center; font-size: 0.9em; margin-top: 10px; min-height: 20px; font-weight: bold; }
+        .feedback.correct { color: #00b894; }
+        .feedback.wrong { color: #d63031; }
         
-        /* 按钮 */
         .btn {
-            background: linear-gradient(90deg, #1E90FF 0%, #00CED1 100%);
+            background: linear-gradient(90deg, #e94560 0%, #ff6b6b 100%);
             color: white;
             border: none;
             padding: 12px 30px;
             border-radius: 25px;
-            font-size: 1.1em;
+            font-size: 1em;
             cursor: pointer;
             font-family: inherit;
             font-weight: bold;
@@ -179,64 +209,65 @@
         }
         .btn:hover { transform: scale(1.02); }
         
-        /* 隐藏 */
         .hidden { display: none; }
         
-        /* 开始/结束画面 */
-        .start-screen, .end-screen { text-align: center; padding: 20px; }
-        .start-screen h2, .end-screen h2 { font-size: 1.5em; color: #1E90FF; margin-bottom: 15px; }
-        .start-screen p { font-size: 1em; color: #666; margin-bottom: 20px; line-height: 1.6; }
-        .fish-collection { display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; margin: 15px 0; font-size: 1.8em; }
-        .trophy { font-size: 4em; margin: 20px 0; }
+        .start-screen, .end-screen, .level-select-screen { text-align: center; padding: 20px; }
+        .start-screen h2, .end-screen h2, .level-select-screen h2 { font-size: 1.4em; color: #e94560; margin-bottom: 15px; }
+        .start-screen p { font-size: 0.95em; color: #666; margin-bottom: 20px; line-height: 1.6; }
+        .monster-collection { display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; margin: 15px 0; font-size: 1.6em; }
         
-        /* 渔获统计 */
-        .catch-stats {
-            text-align: center;
-            background: #FFF8DC;
-            padding: 10px;
-            border-radius: 15px;
-            margin-bottom: 15px;
-            font-size: 0.95em;
+        .level-select { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin: 20px 0; }
+        .level-btn { 
+            background: #fff; 
+            border: 3px solid #e94560; 
+            padding: 10px 5px; 
+            border-radius: 12px; 
+            font-size: 0.9em; 
+            cursor: pointer; 
+            font-family: inherit; 
+            font-weight: bold;
         }
-        .catch-stats span { margin: 0 8px; }
+        .level-btn:hover { background: #e94560; color: white; }
+        .level-btn.completed { background: #00b894; border-color: #00b894; color: white; }
+        
+        .victory-screen { text-align: center; padding: 20px; }
+        .victory-screen h2 { font-size: 1.4em; color: #ffd700; margin-bottom: 15px; }
+        .victory-emoji { font-size: 4em; margin: 15px 0; }
     </style>
 </head>
 <body>
     <div class="game-container">
         <div class="header">
-            <h1>🐠 语法钓鱼大冒险</h1>
+            <h1>🦖 语法打怪大冒险</h1>
             <div class="stats">
-                <div class="stat-item">🎣 <span id="score">0</span></div>
+                <div class="stat-item">⚔️ <span id="score">0</span></div>
                 <div class="stat-item">❤️ <span id="lives">3</span></div>
-                <div class="stat-item">🐟 <span id="fish">0</span></div>
+                <div class="stat-item">👹 <span id="monsters">0</span>/10</div>
             </div>
         </div>
         <div class="content">
-            <!-- 开始画面 -->
             <div class="start-screen" id="startScreen">
-                <div style="font-size: 4em; margin: 20px 0;">🎣🐠</div>
-                <h2>欢迎来到语法钓鱼王国！</h2>
-                <p>答对语法问题，就能钓到可爱的鱼！<br>每种鱼都有不同的分数哦～<br><br>🐟 小鱼 = 10分<br>🐠 中鱼 = 20分<br>🦈 大鱼 = 30分<br><br>加油！Let's go! 🚀</p>
-                <button class="btn" onclick="startGame()">开始钓鱼！</button>
+                <div style="font-size: 3em; margin: 15px 0;">🦖⚔️🏰</div>
+                <h2>欢迎来到现在进行时打怪王国！</h2>
+                <p>答对问题，攻击怪兽！<br>每关一只怪兽，每答对1题 = 打1次！<br>8题全对 = 打败怪兽！<br><br>共10关，越往后怪兽越强！<br><br>开始挑战吧！⚔️</p>
+                <button class="btn" onclick="showLevelSelect()">选择关卡</button>
             </div>
             
-            <!-- 游戏画面 -->
+            <div class="level-select-screen hidden" id="levelSelectScreen">
+                <h2>选择关卡 🎯</h2>
+                <div class="level-select" id="levelSelect"></div>
+                <button class="btn" onclick="startFromLevel(1)">从第1关开始</button>
+            </div>
+            
             <div class="game-screen hidden" id="gameScreen">
-                <div class="fishing-scene" id="fishingScene">
-                    <div class="fishing-rod" id="fishingRod">🎣</div>
-                    <div class="fishing-line" id="fishingLine"><div class="hook">🪝</div></div>
-                    <div class="caught-fish-display" id="caughtFish">🐠</div>
-                    <div class="ocean-floor"></div>
-                    <div class="seaweed" style="left: 10px;">🌿</div>
-                    <div class="seaweed" style="left: 50px; animation-delay: 0.5s;">🌿</div>
-                    <div class="seaweed" style="left: 200px; animation-delay: 1s;">🌿</div>
-                    <!-- 鱼群 -->
-                    <div id="fishSchool"></div>
-                </div>
-                
-                <div class="catch-stats">
-                    本轮已钓到: <span id="roundFish">0</span> 条鱼 | 
-                    最高分鱼: <span id="bestFish">-</span>
+                <div class="battle-scene" id="battleScene">
+                    <div class="level-display" id="levelDisplay">第 1 关</div>
+                    <div class="hp-bar"><div class="hp-fill" id="hpFill"></div></div>
+                    <div class="player" id="player">🦸</div>
+                    <div class="player-sword" id="playerSword">⚔️</div>
+                    <div class="monster" id="monster">👾</div>
+                    <div class="attack-text" id="attackText">⚔️</div>
+                    <div class="battle-ground"></div>
                 </div>
                 
                 <div class="question-area">
@@ -244,81 +275,180 @@
                     <div class="options" id="options"></div>
                 </div>
                 <div class="feedback" id="feedback"></div>
-                <button class="btn" id="nextBtn" onclick="nextQuestion()">下一条鱼 →</button>
+                <button class="btn" id="nextBtn" onclick="nextQuestion()">下一题 →</button>
             </div>
             
-            <!-- 结束画面 -->
-            <div class="end-screen hidden" id="endScreen">
-                <div class="trophy" id="trophy">🏆</div>
-                <h2 id="endTitle">🎉 钓鱼结束！</h2>
-                <p id="endMessage">你太厉害了！</p>
-                <p style="font-size: 1.3em; color: #1E90FF; margin: 15px 0;">
-                    共钓到 <strong id="finalFish">0</strong> 条鱼！
+            <div class="victory-screen hidden" id="victoryScreen">
+                <div class="victory-emoji" id="victoryEmoji">🏆</div>
+                <h2 id="victoryTitle">🎉 怪兽被打败了！</h2>
+                <p id="victoryMessage">太厉害了！</p>
+                <p style="font-size: 1.1em; color: #e94560; margin: 15px 0;">
+                    获得 <strong id="victoryScore">0</strong> 分！
                 </p>
-                <div class="fish-collection" id="fishCollection"></div>
-                <button class="btn" onclick="restartGame()">再钓一次！</button>
+                <button class="btn" id="nextLevelBtn" onclick="goToNextLevel()">下一关 →</button>
+                <button class="btn" onclick="showLevelSelect()" style="background: #666;">返回选关</button>
+            </div>
+            
+            <div class="end-screen hidden" id="endScreen">
+                <div style="font-size: 4em; margin: 15px 0;">🏆👑</div>
+                <h2 id="endTitle">🎉 全部通关！</h2>
+                <p id="endMessage">你是语法王者！</p>
+                <p style="font-size: 1.2em; color: #e94560; margin: 15px 0;">
+                    总得分: <strong id="finalScore">0</strong>
+                </p>
+                <div class="monster-collection" id="monsterCollection"></div>
+                <button class="btn" onclick="restartGame()">再玩一次</button>
             </div>
         </div>
     </div>
     
     <script>
-        // 鱼群类型
-        const fishTypes = [
-            { emoji: '🐟', name: '小鱼', points: 10, speed: 3 },
-            { emoji: '🐠', name: '中鱼', points: 20, speed: 2 },
-            { emoji: '🐡', name: '河豚', points: 15, speed: 2.5 },
-            { emoji: '🦈', name: '鲨鱼', points: 30, speed: 4 },
-            { emoji: '🐙', name: '章鱼', points: 25, speed: 1.5 },
-            { emoji: '🦀', name: '螃蟹', points: 20, speed: 1 }
+        const monsters = [
+            { emoji: '👾', name: '小怪', size: '2em' },
+            { emoji: '🦇', name: '蝙蝠', size: '2.2em' },
+            { emoji: '🕷️', name: '蜘蛛', size: '2.2em' },
+            { emoji: '🐍', name: '蛇', size: '2.3em' },
+            { emoji: '🧟', name: '僵尸', size: '2.4em' },
+            { emoji: '👹', name: '恶鬼', size: '2.5em' },
+            { emoji: '🐺', name: '狼人', size: '2.5em' },
+            { emoji: '🦍', name: '金刚', size: '2.6em' },
+            { emoji: '🐉', name: '巨龙', size: '2.8em' },
+            { emoji: '👺', name: '大Boss', size: '3em' }
         ];
         
-        // 语法题目
-        const questions = [
-            { text: "I ___ reading a book now.", options: ["am", "is", "are"], answer: 0, hint: "I + am" },
-            { text: "She ___ sleeping.", options: ["am", "is", "are"], answer: 1, hint: "She + is" },
-            { text: "They ___ playing games.", options: ["am", "is", "are"], answer: 2, hint: "They + are" },
-            { text: "He ___ playing football.", options: ["am", "is", "are"], answer: 1, hint: "He + is" },
-            { text: "We ___ watching TV.", options: ["am", "is", "are"], answer: 2, hint: "We + are" },
-            { text: "Look! The bird ___ flying.", options: ["is", "are", "am"], answer: 0, hint: "单数用 is" },
-            { text: "Listen! She ___ singing.", options: ["is", "are", "am"], answer: 0, hint: "She 是单数" },
-            { text: "I ___ eating breakfast.", options: ["am", "is", "are"], answer: 0, hint: "I + am" },
-            { text: "He ___ to school.", options: ["go", "going", "goes"], answer: 1, hint: "go → going" },
-            { text: "She is ___ a song.", options: ["sing", "singing", "sings"], answer: 1, hint: "sing → singing" },
-            { text: "They are ___ games.", options: ["play", "playing", "plays"], answer: 1, hint: "play → playing" },
-            { text: "We are ___ in the park.", options: ["run", "running", "runs"], answer: 1, hint: "run → running" },
-            { text: "I ___ not sleeping.", options: ["am", "is", "are"], answer: 0, hint: "I + am not" },
-            { text: "She ___ not eating.", options: ["am", "is", "aren't"], answer: 1, hint: "isn't" },
-            { text: "They ___ not playing.", options: ["am", "is", "aren't"], answer: 2, hint: "aren't" },
-            { text: "___ you sleeping?", options: ["Are", "Is", "Am"], answer: 0, hint: "Are you...?" },
-            { text: "___ she eating?", options: ["Are", "Is", "Am"], answer: 1, hint: "Is she...?" },
-            { text: "___ they playing?", options: ["Are", "Is", "Am"], answer: 0, hint: "Are they...?" },
-            { text: "Yes, I ___.", options: ["am", "is", "are"], answer: 0, hint: "Yes, I am" },
-            { text: "No, she ___.", options: ["am not", "isn't", "aren't"], answer: 1, hint: "No, she isn't" },
-            { text: "She ___ a cake.", options: ["is making", "are making", "am making"], answer: 0, hint: "is making" },
-            { text: "I ___ my homework.", options: ["am doing", "is doing", "are doing"], answer: 0, hint: "am doing" },
-            { text: "They ___ breakfast.", options: ["is eating", "are eating", "am eating"], answer: 1, hint: "are eating" },
-            { text: "Look! The cat ___ the tree.", options: ["is climbing", "are climbing", "am climbing"], answer: 0, hint: "is climbing" },
-            { text: "He ___ basketball.", options: ["is playing", "are playing", "am playing"], answer: 0, hint: "is playing" },
-            { text: "We ___ about the future.", options: ["is talking", "are talking", "am talking"], answer: 1, hint: "are talking" }
+        // 现在进行时题目（语法已检查）
+        const levelQuestions = [
+            // 第1关：现在进行时基本结构 be + doing
+            [
+                { text: "I ___ reading a book now.", options: ["am", "is", "are"], answer: 0, hint: "I + am" },
+                { text: "She ___ sleeping.", options: ["am", "is", "are"], answer: 1, hint: "She + is" },
+                { text: "They ___ playing games.", options: ["am", "is", "are"], answer: 2, hint: "They + are" },
+                { text: "He ___ playing football.", options: ["am", "is", "are"], answer: 1, hint: "He + is" },
+                { text: "We ___ watching TV.", options: ["am", "is", "are"], answer: 2, hint: "We + are" },
+                { text: "Look! The bird ___ flying.", options: ["is", "are", "am"], answer: 0, hint: "单数用 is" },
+                { text: "Listen! She ___ singing.", options: ["is", "are", "am"], answer: 0, hint: "She + is" },
+                { text: "The baby ___ crying.", options: ["is", "are", "am"], answer: 0, hint: "单数用 is" }
+            ],
+            // 第2关：I am doing
+            [
+                { text: "I ___ eating breakfast.", options: ["am", "is", "are"], answer: 0, hint: "I + am" },
+                { text: "I ___ reading a book.", options: ["am reading", "is reading", "are reading"], answer: 0, hint: "I + am + doing" },
+                { text: "I ___ now.", options: ["am sleeping", "is sleeping", "are sleeping"], answer: 0, hint: "I + am + doing" },
+                { text: "I ___ my homework.", options: ["am doing", "is doing", "are doing"], answer: 0, hint: "am doing homework" },
+                { text: "Look! I ___ a kite.", options: ["am flying", "is flying", "are flying"], answer: 0, hint: "am flying a kite" },
+                { text: "I ___ in the river.", options: ["am swimming", "is swimming", "are swimming"], answer: 0, hint: "am swimming" },
+                { text: "Now I ___ to music.", options: ["am listening", "is listening", "are listening"], answer: 0, hint: "am listening to music" },
+                { text: "I ___ a picture.", options: ["am drawing", "is drawing", "are drawing"], answer: 0, hint: "am drawing a picture" }
+            ],
+            // 第3关：He/She is doing
+            [
+                { text: "He ___ playing football.", options: ["am", "is", "are"], answer: 1, hint: "He + is" },
+                { text: "She ___ a cake.", options: ["is making", "are making", "am making"], answer: 0, hint: "She + is + making" },
+                { text: "He ___ English.", options: ["is studying", "are studying", "am studying"], answer: 0, hint: "is studying English" },
+                { text: "Look! She ___ dance.", options: ["is", "are", "am"], answer: 0, hint: "She + is" },
+                { text: "My mother ___ cooking.", options: ["is", "are", "am"], answer: 0, hint: "第三人称单数 + is" },
+                { text: "The teacher ___ writing.", options: ["is", "are", "am"], answer: 0, hint: "单数 + is" },
+                { text: "He ___ basketball.", options: ["is playing", "are playing", "am playing"], answer: 0, hint: "is playing basketball" },
+                { text: "She ___ to her friend.", options: ["is talking", "are talking", "am talking"], answer: 0, hint: "is talking to friend" }
+            ],
+            // 第4关：They are doing / We are doing
+            [
+                { text: "They ___ playing games.", options: ["am", "is", "are"], answer: 2, hint: "They + are" },
+                { text: "We ___ English.", options: ["is studying", "are studying", "am studying"], answer: 1, hint: "We + are + studying" },
+                { text: "The children ___ in the park.", options: ["is playing", "are playing", "am playing"], answer: 1, hint: "children 复数，用 are" },
+                { text: "Look! They ___ a snowman.", options: ["is making", "are making", "am making"], answer: 1, hint: "are making a snowman" },
+                { text: "They ___ breakfast.", options: ["is eating", "are eating", "am eating"], answer: 1, hint: "are eating breakfast" },
+                { text: "My friends ___ to me.", options: ["is listening", "are listening", "am listening"], answer: 1, hint: "are listening to me" },
+                { text: "They ___ on the computer.", options: ["is working", "are working", "am working"], answer: 1, hint: "are working" },
+                { text: "We ___ about the future.", options: ["is talking", "are talking", "am talking"], answer: 1, hint: "are talking about" }
+            ],
+            // 第5关：否定句 be + not + doing
+            [
+                { text: "I ___ sleeping.", options: ["am not", "is not", "are not"], answer: 0, hint: "I + am not" },
+                { text: "She ___ eating.", options: ["am not", "is not", "are not"], answer: 1, hint: "She + is not" },
+                { text: "They ___ playing.", options: ["am not", "is not", "aren't"], answer: 2, hint: "They + aren't" },
+                { text: "He ___ working today.", options: ["am not", "isn't", "aren't"], answer: 1, hint: "He + isn't" },
+                { text: "We ___ watching TV.", options: ["am not", "is not", "aren't"], answer: 2, hint: "We + aren't" },
+                { text: "The cat ___ sleeping.", options: ["am not", "isn't", "aren't"], answer: 1, hint: "isn't" },
+                { text: "You ___ listening to me!", options: ["am not", "isn't", "aren't"], answer: 2, hint: "aren't" },
+                { text: "I ___ doing my homework.", options: ["am not", "isn't", "aren't"], answer: 0, hint: "am not" }
+            ],
+            // 第6关：疑问句 Are you... / Is he... / Are they...
+            [
+                { text: "___ you sleeping?", options: ["Are", "Is", "Am"], answer: 0, hint: "Are you...?" },
+                { text: "___ she eating?", options: ["Are", "Is", "Am"], answer: 1, hint: "Is she...?" },
+                { text: "___ they playing?", options: ["Are", "Is", "Am"], answer: 0, hint: "Are they...?" },
+                { text: "___ he working?", options: ["Are", "Is", "Am"], answer: 1, hint: "Is he...?" },
+                { text: "Yes, I ___.", options: ["am", "is", "are"], answer: 0, hint: "Yes, I am" },
+                { text: "No, she ___.", options: ["am not", "isn't", "aren't"], answer: 1, hint: "No, she isn't" },
+                { text: "___ we doing well?", options: ["Are", "Is", "Am"], answer: 0, hint: "Are we...?" },
+                { text: "___ it raining?", options: ["Are", "Is", "Am"], answer: 1, hint: "Is it...?" }
+            ],
+            // 第7关：现在进行时动词变化
+            [
+                { text: "He ___ to school.", options: ["go", "going", "goes"], answer: 1, hint: "go → going" },
+                { text: "She is ___ a song.", options: ["sing", "singing", "sings"], answer: 1, hint: "sing → singing" },
+                { text: "They are ___ games.", options: ["play", "playing", "plays"], answer: 1, hint: "play → playing" },
+                { text: "We are ___ in the park.", options: ["run", "running", "runs"], answer: 1, hint: "run → running" },
+                { text: "I am ___ a picture.", options: ["draw", "drawing", "draws"], answer: 1, hint: "draw → drawing" },
+                { text: "She is ___ her homework.", options: ["do", "doing", "does"], answer: 1, hint: "do → doing" },
+                { text: "He is ___ to music.", options: ["listen", "listening", "listens"], answer: 1, hint: "listen → listening" },
+                { text: "They are ___ in the classroom.", options: ["study", "studying", "studies"], answer: 1, hint: "study → studying" }
+            ],
+            // 第8关：现在进行时用法
+            [
+                { text: "Look! The bird ___ in the sky.", options: ["is flying", "are flying", "am flying"], answer: 0, hint: "单数 + is flying" },
+                { text: "Listen! Someone ___ at the door.", options: ["is knocking", "are knocking", "am knocking"], answer: 0, hint: "单数 + is knocking" },
+                { text: "The children ___ in the garden.", options: ["is playing", "are playing", "am playing"], answer: 1, hint: "复数 + are playing" },
+                { text: "My dad ___ TV now.", options: ["is watching", "are watching", "am watching"], answer: 0, hint: "is watching TV" },
+                { text: "The sun ___ in the east.", options: ["is rising", "are rising", "am rising"], answer: 0, hint: "单数 + is rising" },
+                { text: "I ___ my best friend now.", options: ["am missing", "is missing", "are missing"], answer: 0, hint: "am missing" },
+                { text: "She ___ a letter now.", options: ["is writing", "are writing", "am writing"], answer: 0, hint: "is writing" },
+                { text: "They ___ about you.", options: ["is talking", "are talking", "am talking"], answer: 1, hint: "are talking about you" }
+            ],
+            // 第9关：综合练习
+            [
+                { text: "I ___ (not/sleep).", options: ["am not sleeping", "is not sleeping", "aren't sleeping"], answer: 0, hint: "I + am not sleeping" },
+                { text: "___ you ___ (read)? Yes, I ___.", options: ["Are / reading / am", "Is / reading / is", "Are / reading / are"], answer: 0, hint: "Are you reading" },
+                { text: "She ___ (cook) dinner.", options: ["is cooking", "are cooking", "am cooking"], answer: 0, hint: "is cooking" },
+                { text: "They ___ (play) in the park.", options: ["is playing", "are playing", "am playing"], answer: 1, hint: "are playing" },
+                { text: "Look! The cat ___ (climb) the tree.", options: ["is climbing", "are climbing", "am climbing"], answer: 0, hint: "is climbing" },
+                { text: "He ___ (not/work) today.", options: ["isn't working", "aren't working", "am not working"], answer: 0, hint: "isn't working" },
+                { text: "We ___ (not/eat).", options: ["am not eating", "is not eating", "aren't eating"], answer: 2, hint: "aren't eating" },
+                { text: "___ they ___ (swim) now?", options: ["Is / swimming", "Are / swimming", "Do / swimming"], answer: 1, hint: "Are they swimming" }
+            ],
+            // 第10关：终极挑战
+            [
+                { text: "Listen! Someone ___ (knock) at the door.", options: ["is knocking", "are knocking", "am knocking"], answer: 0, hint: "is knocking" },
+                { text: "Look! The baby ___ (cry).", options: ["is crying", "are crying", "am crying"], answer: 0, hint: "is crying" },
+                { text: "I usually ___ (go) to school, but now I ___ (wait) for the bus.", options: ["go / am waiting", "goes / is waiting", "go / is waiting"], answer: 0, hint: "usually用原形，现在进行时用am waiting" },
+                { text: "Now my mother ___ (cook) dinner.", options: ["is cooking", "are cooking", "am cooking"], answer: 0, hint: "is cooking" },
+                { text: "What ___ you ___ (do) now?", options: ["are / doing", "is / doing", "am / doing"], answer: 0, hint: "What are you doing" },
+                { text: "The children ___ (play) in the snow.", options: ["is playing", "are playing", "am playing"], answer: 1, hint: "are playing" },
+                { text: "___ she ___ (come) now?", options: ["Is / coming", "Are / coming", "Do / coming"], answer: 0, hint: "Is she coming" },
+                { text: "I ___ (not/understand).", options: ["am not understanding", "isn't understanding", "aren't understanding"], answer: 0, hint: "am not understanding" }
+            ]
         ];
         
         let gameState = {
+            currentLevel: 1,
+            currentQuestion: 0,
             score: 0,
             lives: 3,
-            fishCaught: 0,
-            roundFish: 0,
-            bestFish: '🐟',
-            currentQuestions: [],
-            currentFish: null,
-            fishPool: []
+            totalDefeated: 0,
+            completedLevels: [],
+            levelQuestions: [],
+            correctInLevel: 0,
+            hp: 8,
+            maxHp: 8
         };
         
         function saveGame() {
-            localStorage.setItem('fishingGameStatePC', JSON.stringify(gameState));
+            localStorage.setItem('monsterGameStatePC2', JSON.stringify(gameState));
         }
         
         function loadGame() {
-            const saved = localStorage.getItem('fishingGameStatePC');
+            const saved = localStorage.getItem('monsterGameStatePC2');
             if (saved) {
                 const loaded = JSON.parse(saved);
                 gameState = { ...gameState, ...loaded };
@@ -339,82 +469,81 @@
         function updateStats() {
             document.getElementById('score').textContent = gameState.score;
             document.getElementById('lives').textContent = '❤️'.repeat(gameState.lives);
-            document.getElementById('fish').textContent = gameState.fishCaught;
-            document.getElementById('roundFish').textContent = gameState.roundFish;
-            document.getElementById('bestFish').textContent = gameState.bestFish;
+            document.getElementById('monsters').textContent = gameState.totalDefeated;
         }
         
-        function startGame() {
-            gameState.score = 0;
-            gameState.lives = 3;
-            gameState.roundFish = 0;
-            gameState.fishPool = shuffleArray([...questions]);
-            
+        function showLevelSelect() {
             document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('levelSelectScreen').classList.remove('hidden');
+            document.getElementById('gameScreen').classList.add('hidden');
+            document.getElementById('victoryScreen').classList.add('hidden');
             document.getElementById('endScreen').classList.add('hidden');
+            
+            const levelSelect = document.getElementById('levelSelect');
+            levelSelect.innerHTML = '';
+            
+            for (let i = 1; i <= 10; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'level-btn';
+                
+                if (gameState.completedLevels.includes(i)) {
+                    btn.classList.add('completed');
+                    btn.innerHTML = monsters[i-1].emoji + '<br>✅';
+                } else {
+                    btn.innerHTML = monsters[i-1].emoji + '<br>第' + i + '关';
+                }
+                
+                btn.onclick = () => startFromLevel(i);
+                levelSelect.appendChild(btn);
+            }
+        }
+        
+        function startFromLevel(level) {
+            gameState.currentLevel = level;
+            gameState.currentQuestion = 0;
+            gameState.lives = 3;
+            gameState.correctInLevel = 0;
+            gameState.maxHp = 8;
+            gameState.hp = 8;
+            gameState.levelQuestions = shuffleArray([...levelQuestions[level - 1]]);
+            
+            document.getElementById('levelSelectScreen').classList.add('hidden');
             document.getElementById('gameScreen').classList.remove('hidden');
+            document.getElementById('victoryScreen').classList.add('hidden');
+            document.getElementById('endScreen').classList.add('hidden');
             
-            // 生成鱼群
-            createFishSchool();
+            const monster = monsters[level - 1];
+            const monsterEl = document.getElementById('monster');
+            monsterEl.textContent = monster.emoji;
+            monsterEl.style.fontSize = monster.size;
+            monsterEl.classList.remove('hit', 'defeated');
             
-            // 开始钓鱼
-            castLine();
+            document.getElementById('levelDisplay').textContent = '第 ' + level + ' 关 - ' + monster.name;
+            
+            createStars();
+            loadQuestion();
+            updateHp();
             updateStats();
+            saveGame();
         }
         
-        function createFishSchool() {
-            const container = document.getElementById('fishSchool');
-            container.innerHTML = '';
+        function createStars() {
+            const scene = document.getElementById('battleScene');
+            scene.querySelectorAll('.star').forEach(s => s.remove());
             
-            // 随机生成8-12条鱼
-            const fishCount = 8 + Math.floor(Math.random() * 5);
-            for (let i = 0; i < fishCount; i++) {
-                const fish = document.createElement('div');
-                fish.className = 'fish';
-                const fishType = fishTypes[Math.floor(Math.random() * fishTypes.length)];
-                fish.dataset.type = JSON.stringify(fishType);
-                fish.textContent = fishType.emoji;
-                fish.style.left = Math.random() * 400 + 'px';
-                fish.style.top = Math.random() * 150 + 50 + 'px';
-                fish.style.animationDuration = (2 + Math.random()) + 's';
-                fish.style.animationDelay = Math.random() + 's';
-                container.appendChild(fish);
-            }
-            
-            // 添加气泡
-            for (let i = 0; i < 5; i++) {
-                const bubble = document.createElement('div');
-                bubble.className = 'bubble';
-                bubble.style.left = Math.random() * 500 + 'px';
-                bubble.style.animationDelay = Math.random() * 4 + 's';
-                container.appendChild(bubble);
+            for (let i = 0; i < 12; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.textContent = '⭐';
+                star.style.left = Math.random() * 450 + 'px';
+                star.style.top = Math.random() * 100 + 'px';
+                star.style.animationDelay = Math.random() * 2 + 's';
+                scene.appendChild(star);
             }
         }
         
-        function castLine() {
-            // 放下鱼竿
-            document.getElementById('fishingRod').classList.add('casting');
-            document.getElementById('fishingLine').classList.add('cast');
-            
-            // 选择一条鱼作为目标
-            const fishes = document.querySelectorAll('#fishSchool .fish');
-            if (fishes.length > 0) {
-                const targetFish = fishes[Math.floor(Math.random() * fishes.length)];
-                gameState.currentFish = JSON.parse(targetFish.dataset.type);
-                gameState.currentFish.element = targetFish;
-            }
-            
-            // 显示问题
-            showQuestion();
-        }
-        
-        function showQuestion() {
-            if (gameState.fishPool.length === 0) {
-                gameState.fishPool = shuffleArray([...questions]);
-            }
-            
-            const q = gameState.fishPool.pop();
-            gameState.currentQuestion = q;
+        function loadQuestion() {
+            const q = gameState.levelQuestions[gameState.currentQuestion];
             
             document.getElementById('questionText').textContent = q.text;
             document.getElementById('feedback').textContent = '';
@@ -437,52 +566,42 @@
             if (!window.canAnswer) return;
             window.canAnswer = false;
             
-            const q = gameState.currentQuestion;
+            const q = gameState.levelQuestions[gameState.currentQuestion];
             const feedback = document.getElementById('feedback');
+            const player = document.getElementById('player');
+            const sword = document.getElementById('playerSword');
+            const monster = document.getElementById('monster');
+            const attackText = document.getElementById('attackText');
             
             if (selectedIndex === q.answer) {
                 btn.classList.add('correct');
-                feedback.textContent = '🎉 答对了！钓到 ' + gameState.currentFish.emoji;
+                
+                player.classList.add('attacking');
+                sword.classList.add('slash');
+                monster.classList.add('hit');
+                attackText.textContent = '⚔️ -1 HP';
+                attackText.classList.add('show');
+                
+                setTimeout(() => {
+                    player.classList.remove('attacking');
+                    sword.classList.remove('slash');
+                    monster.classList.remove('hit');
+                    attackText.classList.remove('show');
+                }, 800);
+                
+                gameState.hp--;
+                gameState.correctInLevel++;
+                gameState.score += 10;
+                
+                feedback.textContent = '⚔️ 攻击成功！再接再厉！';
                 feedback.className = 'feedback correct';
                 
-                // 钓到鱼！
-                gameState.score += gameState.currentFish.points;
-                gameState.fishCaught++;
-                gameState.roundFish++;
+                updateHp();
                 
-                // 更新最佳鱼
-                if (gameState.currentFish.points > fishTypes.find(f => f.emoji === gameState.bestFish).points) {
-                    gameState.bestFish = gameState.currentFish.emoji;
-                }
-                
-                // 鱼被钓起动画
-                if (gameState.currentFish && gameState.currentFish.element) {
-                    gameState.currentFish.element.classList.add('caught');
-                }
-                
-                // 显示钓到的鱼
-                const caughtDisplay = document.getElementById('caughtFish');
-                caughtDisplay.textContent = gameState.currentFish.emoji;
-                caughtDisplay.classList.add('show');
-                
-                // 分数弹出
-                showScorePopup('+' + gameState.currentFish.points);
-                
-                // 检查是否获胜（钓到5条鱼过关）
-                if (gameState.roundFish >= 5) {
-                    gameState.score += 50; // 通关奖励
-                    setTimeout(() => endGame(true), 1500);
+                if (gameState.hp <= 0) {
+                    setTimeout(() => defeatMonster(), 1000);
                     return;
                 }
-                
-                // 移除钓到的鱼，生成新的
-                setTimeout(() => {
-                    if (gameState.currentFish && gameState.currentFish.element) {
-                        gameState.currentFish.element.remove();
-                    }
-                    createFishSchool();
-                    castLine();
-                }, 1500);
                 
             } else {
                 btn.classList.add('wrong');
@@ -490,24 +609,13 @@
                 feedback.className = 'feedback wrong';
                 gameState.lives--;
                 
-                // 鱼跑掉了
-                if (gameState.currentFish && gameState.currentFish.element) {
-                    gameState.currentFish.element.classList.add('escaped');
+                if (gameState.lives <= 0) {
+                    setTimeout(() => {
+                        alert('生命用完了！回到选择关卡～');
+                        showLevelSelect();
+                    }, 1000);
+                    return;
                 }
-                
-                setTimeout(() => {
-                    if (gameState.currentFish && gameState.currentFish.element) {
-                        gameState.currentFish.element.remove();
-                    }
-                    
-                    if (gameState.lives <= 0) {
-                        endGame(false);
-                        return;
-                    }
-                    
-                    createFishSchool();
-                    castLine();
-                }, 1500);
             }
             
             updateStats();
@@ -515,60 +623,101 @@
             saveGame();
         }
         
-        function showScorePopup(text) {
-            const popup = document.createElement('div');
-            popup.className = 'score-popup';
-            popup.textContent = text;
-            popup.style.left = '50%';
-            popup.style.top = '40%';
-            document.getElementById('fishingScene').appendChild(popup);
-            setTimeout(() => popup.remove(), 1000);
+        function updateHp() {
+            const hpPercent = (gameState.hp / gameState.maxHp) * 100;
+            document.getElementById('hpFill').style.width = hpPercent + '%';
         }
         
         function nextQuestion() {
-            // 继续钓鱼
-            createFishSchool();
-            castLine();
+            gameState.currentQuestion++;
+            
+            if (gameState.currentQuestion >= 8) {
+                if (gameState.hp <= 0) {
+                    defeatMonster();
+                } else {
+                    alert('这一关没有全部答对！怪兽还在！再试一次！');
+                    startFromLevel(gameState.currentLevel);
+                }
+                return;
+            }
+            
+            loadQuestion();
         }
         
-        function endGame(success) {
+        function defeatMonster() {
+            const monster = monsters[gameState.currentLevel - 1];
+            const monsterEl = document.getElementById('monster');
+            monsterEl.classList.add('defeated');
+            
+            gameState.score += 50;
+            gameState.totalDefeated++;
+            gameState.completedLevels.push(gameState.currentLevel);
+            
             document.getElementById('gameScreen').classList.add('hidden');
-            document.getElementById('endScreen').classList.remove('hidden');
+            document.getElementById('victoryScreen').classList.remove('hidden');
             
-            if (success) {
-                document.getElementById('trophy').textContent = '🏆';
-                document.getElementById('endTitle').textContent = '🎉 钓鱼成功！';
-                document.getElementById('endMessage').textContent = '你钓到了 ' + gameState.roundFish + ' 条鱼！太厉害了！';
+            document.getElementById('victoryEmoji').textContent = monster.emoji;
+            document.getElementById('victoryTitle').textContent = '🎉 ' + monster.name + '被打败了！';
+            document.getElementById('victoryMessage').textContent = '你击败了它！';
+            document.getElementById('victoryScore').textContent = gameState.score;
+            
+            if (gameState.currentLevel >= 10) {
+                setTimeout(() => showFinalVictory(), 2000);
+                document.getElementById('nextLevelBtn').style.display = 'none';
             } else {
-                document.getElementById('trophy').textContent = '😢';
-                document.getElementById('endTitle').textContent = '鱼都跑掉了！';
-                document.getElementById('endMessage').textContent = '别灰心，再试一次！';
+                document.getElementById('nextLevelBtn').style.display = 'block';
+                document.getElementById('nextLevelBtn').textContent = '下一关 →';
             }
             
-            document.getElementById('finalFish').textContent = gameState.fishCaught;
-            
-            // 显示钓到的鱼
-            const collection = document.getElementById('fishCollection');
-            collection.innerHTML = '';
-            for (let i = 0; i < Math.min(gameState.fishCaught, 20); i++) {
-                const fish = document.createElement('span');
-                fish.textContent = fishTypes[Math.floor(Math.random() * fishTypes.length)].emoji;
-                collection.appendChild(fish);
-            }
-            
-            gameState.fishCaught += gameState.roundFish;
+            updateStats();
             saveGame();
         }
         
-        function restartGame() {
-            gameState.roundFish = 0;
-            gameState.lives = 3;
-            startGame();
+        function goToNextLevel() {
+            if (gameState.currentLevel < 10) {
+                startFromLevel(gameState.currentLevel + 1);
+            }
         }
         
-        // 初始化
+        function showFinalVictory() {
+            document.getElementById('victoryScreen').classList.add('hidden');
+            document.getElementById('endScreen').classList.remove('hidden');
+            
+            document.getElementById('endTitle').textContent = '🎉 全部通关！';
+            document.getElementById('endMessage').textContent = '你是真正的语法王者！';
+            document.getElementById('finalScore').textContent = gameState.score;
+            
+            const collection = document.getElementById('monsterCollection');
+            collection.innerHTML = '';
+            monsters.forEach(m => {
+                const span = document.createElement('span');
+                span.textContent = m.emoji;
+                collection.appendChild(span);
+            });
+        }
+        
+        function restartGame() {
+            gameState = {
+                currentLevel: 1,
+                currentQuestion: 0,
+                score: 0,
+                lives: 3,
+                totalDefeated: 0,
+                completedLevels: [],
+                levelQuestions: [],
+                correctInLevel: 0,
+                hp: 8,
+                maxHp: 8
+            };
+            saveGame();
+            showLevelSelect();
+        }
+        
         window.onload = function() {
             loadGame();
+            showLevelSelect();
+            document.getElementById('startScreen').classList.remove('hidden');
+            document.getElementById('levelSelectScreen').classList.add('hidden');
         };
     </script>
 </body>
