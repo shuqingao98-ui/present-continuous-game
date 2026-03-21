@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>现在进行时大冒险 🌊</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Comic Sans MS', 'YouYuan', cursive, sans-serif;
+            background: linear-gradient(180deg, #87CEEB 0%, #E0F7FA 50%, #B2EBF2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+        }
+        .game-container {
+            background: #FFFFFF;
+            border-radius: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            max-width: 600px;
+            width: 100%;
+            overflow: hidden;
+            border: 5px solid #00BCD4;
+        }
+        .header {
+            background: linear-gradient(90deg, #00BCD4 0%, #4DD0E1 100%);
+            padding: 15px;
+            text-align: center;
+            color: white;
+        }
+        .header h1 { font-size: 1.5em; margin-bottom: 8px; color: #fff; text-shadow: 2px 2px 0 #00838F; }
+        .stats { display: flex; justify-content: space-around; font-size: 1em; }
+        .stat-item { background: rgba(255,255,255,0.4); padding: 5px 12px; border-radius: 15px; }
+        .mascot { font-size: 2.5em; }
+        .content { padding: 20px; }
+        .level-indicator { text-align: center; margin-bottom: 15px; }
+        .level-badge { 
+            display: inline-block; 
+            background: #00BCD4; 
+            color: white; 
+            padding: 10px 25px; 
+            border-radius: 25px; 
+            font-size: 1.1em; 
+            font-weight: bold;
+        }
+        .question-area { 
+            background: #E0F7FA; 
+            border-radius: 20px; 
+            padding: 20px; 
+            margin-bottom: 20px; 
+            border: 3px dotted #00BCD4;
+        }
+        .question-text { font-size: 1.2em; color: #333; margin-bottom: 12px; line-height: 1.5; }
+        .character-hint { font-size: 2em; text-align: center; margin: 10px 0; }
+        .options { display: grid; gap: 10px; }
+        .option-btn { 
+            background: #fff; 
+            border: 3px solid #00BCD4; 
+            padding: 12px 15px; 
+            border-radius: 15px; 
+            font-size: 1em; 
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .option-btn:hover { background: #00BCD4; color: white; }
+        .option-btn.correct { background: #81C784; border-color: #81C784; color: #333; }
+        .option-btn.wrong { background: #E57373; border-color: #E57373; color: #333; }
+        .feedback { text-align: center; font-size: 1em; margin-top: 15px; min-height: 30px; font-weight: bold; }
+        .feedback.correct { color: #2E7D32; }
+        .feedback.wrong { color: #C62828; }
+        .next-btn { 
+            display: none; 
+            width: 100%; 
+            background: #00BCD4; 
+            color: white; 
+            border: none; 
+            padding: 12px; 
+            border-radius: 15px; 
+            font-size: 1.1em; 
+            cursor: pointer; 
+            margin-top: 15px; 
+            font-family: inherit;
+            font-weight: bold;
+        }
+        .start-screen, .end-screen, .level-complete-screen { text-align: center; padding: 25px 15px; }
+        .start-screen h2, .end-screen h2, .level-complete-screen h2 { font-size: 1.6em; color: #00BCD4; margin-bottom: 15px; }
+        .start-screen p, .end-screen p { font-size: 1em; color: #666; margin-bottom: 20px; line-height: 1.6; }
+        .start-btn, .restart-btn, .continue-btn { 
+            background: #00BCD4; 
+            color: white; 
+            border: none; 
+            padding: 12px 35px; 
+            border-radius: 25px; 
+            font-size: 1.2em; 
+            cursor: pointer; 
+            font-family: inherit;
+            font-weight: bold;
+        }
+        .start-btn:hover, .restart-btn:hover, .continue-btn:hover { background: #0097A7; }
+        .progress-bar { width: 100%; height: 10px; background: #eee; border-radius: 5px; margin-top: 15px; }
+        .progress-fill { height: 100%; background: #81C784; width: 0%; transition: width 0.3s; }
+        .hidden { display: none; }
+        .badge-collection { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 15px 0; }
+        .badge { font-size: 1.8em; padding: 8px; background: #eee; border-radius: 10px; }
+        .badge.earned { background: #FFD700; }
+        .level-select { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin: 20px 0; }
+        .level-btn { background: #fff; border: 3px solid #00BCD4; padding: 12px; border-radius: 12px; font-size: 1.1em; cursor: pointer; font-family: inherit; font-weight: bold; }
+        .level-btn:hover { background: #00BCD4; color: white; }
+        .level-btn.locked { background: #eee; border-color: #ccc; color: #999; }
+        .level-btn.completed { background: #81C784; border-color: #81C784; }
+        .encourage-text { font-size: 1.1em; color: #00BCD4; margin: 12px 0; font-weight: bold; }
+        .progress-detail { font-size: 0.9em; color: #666; margin-top: 12px; }
+        .reward-area { font-size: 3.5em; margin: 20px 0; }
+        .level-select-title { font-size: 1.4em; color: #00BCD4; margin-bottom: 15px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <div class="mascot">🐠</div>
+            <h1>现在进行时大冒险</h1>
+            <div class="stats">
+                <div class="stat-item">⭐ <span id="score">0</span></div>
+                <div class="stat-item">❤️ <span id="lives">3</span></div>
+                <div class="stat-item">🏅 <span id="badges">0</span>/10</div>
+            </div>
+        </div>
+        <div class="content">
+            <div class="start-screen" id="startScreen">
+                <h2>欢迎来到时态王国！🏰</h2>
+                <p>嗨！我是小鱼伙伴！🐠<br><br>和我一起穿越10个关卡，掌握现在进行时的秘密吧！<br><br>每关都有徽章奖励哦～<br>加油！Let's go! 🚀</p>
+                <div class="badge-collection" id="startBadges"></div>
+                <button class="start-btn" onclick="showLevelSelect()">选择关卡</button>
+            </div>
+            <div class="level-select-screen hidden" id="levelSelectScreen">
+                <div class="level-select-title">选择关卡 🎯</div>
+                <div class="level-select" id="levelSelect"></div>
+                <div class="progress-detail" id="progressDetail"></div>
+                <button class="start-btn" onclick="startFromLevel(1)" style="margin-top: 15px;">从第1关开始</button>
+                <button class="restart-btn" onclick="resetGame()" style="margin-top: 15px; background: #4DD0E1;">🔄 重新开始</button>
+            </div>
+            <div class="game-screen hidden" id="gameScreen">
+                <div class="level-indicator">
+                    <span class="level-badge" id="levelBadge">第 1 关</span>
+                </div>
+                <div class="encourage-text" id="encourageText"></div>
+                <div class="question-area">
+                    <div class="character-hint" id="characterHint">🐱</div>
+                    <div class="question-text" id="questionText">题目加载中...</div>
+                    <div class="options" id="options"></div>
+                </div>
+                <div class="feedback" id="feedback"></div>
+                <button class="next-btn" id="nextBtn" onclick="nextQuestion()">下一题 →</button>
+                <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+            </div>
+            <div class="level-complete-screen hidden" id="levelCompleteScreen">
+                <h2>🎉 第 <span id="completeLevelNum">1</span> 关完成！</h2>
+                <div class="reward-area" id="levelReward">🏅</div>
+                <p id="levelCompleteMsg">太棒了！</p>
+                <button class="continue-btn" onclick="continueToNext()">下一关 →</button>
+            </div>
+            <div class="end-screen hidden" id="endScreen">
+                <h2 id="endTitle">🎉 恭喜通关！</h2>
+                <div class="reward-area" id="finalReward">🏆👑🎊</div>
+                <p id="endMessage">你已经是时态小达人了！</p>
+                <p style="font-size: 1.2em; color: #00BCD4; margin: 15px 0;">最终得分：<strong id="finalScore">0</strong></p>
+                <div class="badge-collection" id="finalBadges"></div>
+                <button class="restart-btn" onclick="restartGame()">再玩一次</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        const levels = [
+            { name: "第1关：什么是现在进行时？", char: "📚", questions: [
+                { text: "现在进行时表示正在进行的动作，结构是：be + ___ .", options: ["do", "doing", "does"], answer: 1, hint: "现在进行时 = be + doing" },
+                { text: "I ___ reading a book now.", options: ["am", "is", "are"], answer: 0, hint: "I + am" },
+                { text: "She ___ sleeping.", options: ["am", "is", "are"], answer: 1, hint: "She + is" },
+                { text: "They ___ playing games.", options: ["am", "is", "are"], answer: 2, hint: "They + are" },
+                { text: "现在进行时的否定句要在 be 动词后加 ___ .", options: ["not", "no", "don't"], answer: 0, hint: "be + not + doing" },
+                { text: "疑问句要把 be 动词放到 ___ .", options: ["句首", "句尾", "中间"], answer: 0, hint: "Are you...?" },
+                { text: "Look! The bird ___ flying.", options: ["is", "are", "am"], answer: 0, hint: "The bird 是单数" },
+                { text: "Listen! She ___ singing.", options: ["is", "are", "am"], answer: 0, hint: "She 是单数" }
+            ], encourage: "你真棒！现在进行时 so easy！", badge: "📚" },
+            { name: "第2关：I am doing", char: "👦", questions: [
+                { text: "I ___ eating breakfast.", options: ["am", "is", "are"], answer: 0, hint: "I + am" },
+                { text: "I ___ reading a book.", options: ["am reading", "is reading", "are reading"], answer: 0, hint: "I + am + doing" },
+                { text: "I ___ now.", options: ["am sleeping", "is sleeping", "are sleeping"], answer: 0, hint: "I + am + doing" },
+                { text: "I ___ my homework.", options: ["am doing", "is doing", "are doing"], answer: 0, hint: "do homework" },
+                { text: "Look! I ___ a kite.", options: ["am flying", "is flying", "are flying"], answer: 0, hint: "fly a kite" },
+                { text: "I ___ in the river.", options: ["am swimming", "is swimming", "are swimming"], answer: 0, hint: "swim" },
+                { text: "Now I ___ to music.", options: ["am listening", "is listening", "are listening"], answer: 0, hint: "listen to music" },
+                { text: "I ___ a picture.", options: ["am drawing", "is drawing", "are drawing"], answer: 0, hint: "draw a picture" }
+            ], encourage: "I am doing 掌握啦！继续加油！💪", badge: "👦" },
+            { name: "第3关：He/She is doing", char: "👧", questions: [
+                { text: "He ___ playing football.", options: ["am", "is", "are"], answer: 1, hint: "He + is" },
+                { text: "She ___ a cake.", options: ["is making", "are making", "am making"], answer: 0, hint: "She + is + doing" },
+                { text: "He ___ English.", options: ["is studying", "are studying", "am studying"], answer: 0, hint: "study English" },
+                { text: "Look! She ___ dance.", options: ["is", "are", "am"], answer: 0, hint: "is + doing" },
+                { text: "My mother ___ cooking.", options: ["is", "are", "am"], answer: 0, hint: "第三人称单数用 is" },
+                { text: "The teacher ___ writing.", options: ["is", "are", "am"], answer: 0, hint: "The teacher 是单数" },
+                { text: "He ___ basketball.", options: ["is playing", "are playing", "am playing"], answer: 0, hint: "play basketball" },
+                { text: "She ___ to her friend.", options: ["is talking", "are talking", "am talking"], answer: 0, hint: "talk to" }
+            ], encourage: "第三人称单数 so easy！🌟", badge: "👧" },
+            { name: "第4关：They are doing", char: "👫", questions: [
+                { text: "They ___ playing games.", options: ["am", "is", "are"], answer: 2, hint: "They + are" },
+                { text: "We ___ English.", options: ["is studying", "are studying", "am studying"], answer: 1, hint: "We + are + doing" },
+                { text: "The children ___ in the park.", options: ["is playing", "are playing", "am playing"], answer: 1, hint: "children 复数，用 are" },
+                { text: "Look! They ___ a snowman.", options: ["is making", "are making", "am making"], answer: 1, hint: "make a snowman" },
+                { text: "They ___ breakfast.", options: ["is eating", "are eating", "am eating"], answer: 1, hint: "eat breakfast" },
+                { text: "My friends ___ to me.", options: ["is listening", "are listening", "am listening"], answer: 1, hint: "listen to me" },
+                { text: "They ___ on the computer.", options: ["is working", "are working", "am working"], answer: 1, hint: "work on" },
+                { text: "We ___ about the future.", options: ["is talking", "are talking", "am talking"], answer: 1, hint: "talk about" }
+            ], encourage: "复数主语也难不倒你！🚀", badge: "👫" },
+            { name: "第5关：否定句", char: "❌", questions: [
+                { text: "I ___ sleeping.", options: ["am not", "is not", "are not"], answer: 0, hint: "am not" },
+                { text: "She ___ eating.", options: ["am not", "is not", "are not"], answer: 1, hint: "is not = isn't" },
+                { text: "They ___ playing.", options: ["am not", "is not", "aren't"], answer: 2, hint: "aren't" },
+                { text: "He ___ working today.", options: ["am not", "isn't", "aren't"], answer: 1, hint: "isn't" },
+                { text: "We ___ watching TV.", options: ["am not", "is not", "aren't"], answer: 2, hint: "aren't" },
+                { text: "The cat ___ sleeping.", options: ["am not", "isn't", "aren't"], answer: 1, hint: "isn't" },
+                { text: "You ___ listening to me!", options: ["am not", "isn't", "aren't"], answer: 2, hint: "aren't" },
+                { text: "I ___ doing my homework.", options: ["am not", "isn't", "aren't"], answer: 0, hint: "am not" }
+            ], encourage: "否定句 so easy！继续保持！🎯", badge: "❌" },
+            { name: "第6关：疑问句", char: "❓", questions: [
+                { text: "___ you sleeping?", options: ["Are", "Is", "Am"], answer: 0, hint: "Are you...?" },
+                { text: "___ she eating?", options: ["Are", "Is", "Am"], answer: 1, hint: "Is she...?" },
+                { text: "___ they playing?", options: ["Are", "Is", "Am"], answer: 0, hint: "Are they...?" },
+                { text: "___ he working?", options: ["Are", "Is", "Am"], answer: 1, hint: "Is he...?" },
+                { text: "Yes, I ___.", options: ["am", "is", "are"], answer: 0, hint: "Yes, I am" },
+                { text: "No, she ___.", options: ["am not", "isn't", "aren't"], answer: 1, hint: "No, she isn't" },
+                { text: "___ we doing well?", options: ["Are", "Is", "Am"], answer: 0, hint: "Are we...?" },
+                { text: "___ it raining?", options: ["Are", "Is", "Am"], answer: 1, hint: "Is it...?" }
+            ], encourage: "疑问句也难不倒你！💫", badge: "❓" },
+            { name: "第7关：What are you doing?", char: "🤔", questions: [
+                { text: "___ are you doing?", options: ["What", "Where", "Who"], answer: 0, hint: "What 问做什么" },
+                { text: "What ___ she doing?", options: ["am", "is", "are"], answer: 1, hint: "she + is" },
+                { text: "What ___ they eating?", options: ["am", "is", "are"], answer: 2, hint: "they + are" },
+                { text: "What is he ___?", options: ["do", "doing", "does"], answer: 1, hint: "is + doing" },
+                { text: "I am ___ my homework.", options: ["doing", "doing", "doing"], answer: 0, hint: "doing homework" },
+                { text: "She is ___ a song.", options: ["sing", "singing", "sings"], answer: 1, hint: "sing → singing" },
+                { text: "What are you ___?", options: ["look", "looking", "looks"], answer: 1, hint: "look → looking" },
+                { text: "They are ___ games.", options: ["play", "playing", "plays"], answer: 1, hint: "play → playing" }
+            ], encourage: "特殊疑问句小意思！🏆", badge: "🤔" },
+            { name: "第8关：Where/Who/When", char: "🔍", questions: [
+                { text: "___ is he going?", options: ["What", "Where", "Who"], answer: 1, hint: "Where 问去哪里" },
+                { text: "Where ___ you going?", options: ["am", "is", "are"], answer: 2, hint: "are" },
+                { text: "Who ___ sleeping?", options: ["am", "is", "are"], answer: 1, hint: "is" },
+                { text: "Where ___ she standing?", options: ["am", "is", "are"], answer: 1, hint: "is" },
+                { text: "What ___ they doing?", options: ["am", "is", "are"], answer: 2, hint: "are" },
+                { text: "He is ___ to school.", options: ["go", "going", "goes"], answer: 1, hint: "go → going" },
+                { text: "She is ___ in the kitchen.", options: ["cook", "cooking", "cooks"], answer: 1, hint: "cook → cooking" },
+                { text: "They are ___ in the classroom.", options: ["study", "studying", "studies"], answer: 1, hint: "study → studying" }
+            ], encourage: "各种疑问词 so easy！🌈", badge: "🔍" },
+            { name: "第9关：综合练习", char: "🎪", questions: [
+                { text: "I ___ (not/sleep).", options: ["am not sleeping", "is not sleeping", "aren't sleeping"], answer: 0, hint: "I + am not" },
+                { text: "___ you ___ (read)? Yes, I ___.", options: ["Are / reading / am", "Is / reading / is", "Are / reading / are"], answer: 0, hint: "Are you reading" },
+                { text: "She ___ (cook) dinner.", options: ["is cooking", "are cooking", "am cooking"], answer: 0, hint: "She + is + cooking" },
+                { text: "They ___ (play) in the park.", options: ["is playing", "are playing", "am playing"], answer: 1, hint: "They + are" },
+                { text: "What ___ he ___ (do)?", options: ["is / doing", "are / doing", "am / doing"], answer: 0, hint: "What is he doing" },
+                { text: "Look! The cat ___ (climb) the tree.", options: ["is climbing", "are climbing", "am climbing"], answer: 0, hint: "单数用 is" },
+                { text: "We ___ (not/eat).", options: ["am not eating", "is not eating", "aren't eating"], answer: 2, hint: "We + aren't" },
+                { text: "Where ___ they ___ (go)?", options: ["is / going", "are / going", "am / going"], answer: 1, hint: "Where are they going" }
+            ], encourage: "综合练习也难不倒你！太厉害了！⭐", badge: "⭐" },
+            { name: "第10关：终极挑战", char: "🐲", questions: [
+                { text: "___ you a doctor? No, I ___.", options: ["Are / am not", "Do / am not", "Are / is not"], answer: 0, hint: "Are you... I'm not" },
+                { text: "She ___ (not/understand).", options: ["isn't understanding", "aren't understanding", "am not understanding"], answer: 0, hint: "isn't understanding" },
+                { text: "___ he play football now?", options: ["Does", "Is", "Are"], answer: 1, hint: "Is he playing" },
+                { text: "What ___ they ___ (eat)?", options: ["is / eating", "are / eating", "am / eating"], answer: 1, hint: "What are they eating" },
+                { text: "Listen! Someone ___ (knock) at the door.", options: ["is knocking", "are knocking", "am knocking"], answer: 0, hint: "单数用 is" },
+                { text: "The children ___ (not/like) vegetables.", options: ["doesn't like", "don't like", "don't likes"], answer: 1, hint: "children 复数，用 don't" },
+                { text: "Where ___ she ___ (go) now?", options: ["is / going", "are / going", "am / going"], answer: 0, hint: "Where is she going" },
+                { text: "I usually ___ (go) to school, but now I ___ (wait) for the bus.", options: ["go / am waiting", "goes / is waiting", "go / is waiting"], answer: 0, hint: "usually 用原形，现在进行时用 am waiting" }
+            ], encourage: "你是终极时态王者！👑", badge: "👑" }
+        ];
+
+        let gameState = {
+            currentLevel: 1,
+            currentQuestion: 0,
+            score: 0,
+            lives: 3,
+            earnedBadges: [],
+            maxUnlockedLevel: 10,
+            completedLevels: [],
+            currentQuestions: []
+        };
+
+        function saveGame() {
+            localStorage.setItem('presentContinuousGameState', JSON.stringify(gameState));
+        }
+
+        function loadGame() {
+            const saved = localStorage.getItem('presentContinuousGameState');
+            if (saved) {
+                const loaded = JSON.parse(saved);
+                gameState = { ...gameState, ...loaded };
+                gameState.lives = 3;
+            }
+            updateStats();
+        }
+
+        function shuffleArray(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function updateStats() {
+            document.getElementById('score').textContent = gameState.score;
+            document.getElementById('lives').textContent = '❤️'.repeat(gameState.lives);
+            document.getElementById('badges').textContent = gameState.earnedBadges.length;
+        }
+
+        function showLevelSelect() {
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('levelSelectScreen').classList.remove('hidden');
+            
+            const levelSelect = document.getElementById('levelSelect');
+            levelSelect.innerHTML = '';
+            
+            for (let i = 1; i <= 10; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'level-btn';
+                btn.textContent = i;
+                
+                if (i > gameState.maxUnlockedLevel) {
+                    btn.classList.add('locked');
+                    btn.textContent = '🔒';
+                } else if (gameState.completedLevels.includes(i)) {
+                    btn.classList.add('completed');
+                }
+                
+                btn.onclick = () => startFromLevel(i);
+                levelSelect.appendChild(btn);
+            }
+            
+            document.getElementById('progressDetail').textContent = '已通关: ' + gameState.completedLevels.length + '/10';
+            renderBadges('startBadges', gameState.earnedBadges);
+        }
+
+        function renderBadges(containerId, badges) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            container.innerHTML = '';
+            for (let i = 0; i < 10; i++) {
+                const span = document.createElement('span');
+                span.className = 'badge' + (badges.includes(i + 1) ? ' earned' : '');
+                span.textContent = badges.includes(i + 1) ? levels[i].badge : '❓';
+                container.appendChild(span);
+            }
+        }
+
+        function startFromLevel(level) {
+            if (level > gameState.maxUnlockedLevel) return;
+            gameState.currentLevel = level;
+            gameState.currentQuestion = 0;
+            gameState.lives = 3;
+            gameState.currentQuestions = shuffleArray([...levels[level - 1].questions]);
+            document.getElementById('levelSelectScreen').classList.add('hidden');
+            document.getElementById('gameScreen').classList.remove('hidden');
+            loadQuestion();
+            saveGame();
+        }
+
+        function loadQuestion() {
+            const level = levels[gameState.currentLevel - 1];
+            const question = gameState.currentQuestions[gameState.currentQuestion];
+            document.getElementById('levelBadge').textContent = level.name;
+            document.getElementById('characterHint').textContent = level.char;
+            document.getElementById('questionText').textContent = question.text;
+            document.getElementById('encourageText').textContent = level.encourage;
+            document.getElementById('feedback').textContent = '';
+            document.getElementById('nextBtn').style.display = 'none';
+            
+            const optionsDiv = document.getElementById('options');
+            optionsDiv.innerHTML = '';
+            question.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = opt;
+                btn.onclick = () => checkAnswer(index, btn);
+                optionsDiv.appendChild(btn);
+            });
+            
+            window.canAnswer = true;
+            updateProgress();
+            updateStats();
+        }
+
+        function checkAnswer(selectedIndex, btn) {
+            if (!window.canAnswer) return;
+            window.canAnswer = false;
+            
+            const question = gameState.currentQuestions[gameState.currentQuestion];
+            const feedback = document.getElementById('feedback');
+            
+            if (selectedIndex === question.answer) {
+                btn.classList.add('correct');
+                feedback.textContent = '✨ 太棒了！答对了！';
+                feedback.className = 'feedback correct';
+                gameState.score += 10;
+            } else {
+                btn.classList.add('wrong');
+                feedback.textContent = '💡 ' + question.hint;
+                feedback.className = 'feedback wrong';
+                gameState.lives--;
+                const options = document.querySelectorAll('.option-btn');
+                options[question.answer].classList.add('correct');
+            }
+            
+            updateStats();
+            document.getElementById('nextBtn').style.display = 'block';
+            if (gameState.lives <= 0) setTimeout(() => endGame(false), 1500);
+            saveGame();
+        }
+
+        function nextQuestion() {
+            gameState.currentQuestion++;
+            if (gameState.currentQuestion >= gameState.currentQuestions.length) {
+                completeLevel();
+                return;
+            }
+            loadQuestion();
+        }
+
+        function completeLevel() {
+            gameState.completedLevels.push(gameState.currentLevel);
+            if (!gameState.earnedBadges.includes(gameState.currentLevel)) {
+                gameState.earnedBadges.push(gameState.currentLevel);
+            }
+            gameState.score += 50;
+            saveGame();
+            
+            document.getElementById('gameScreen').classList.add('hidden');
+            document.getElementById('levelCompleteScreen').classList.remove('hidden');
+            document.getElementById('completeLevelNum').textContent = gameState.currentLevel;
+            document.getElementById('levelReward').textContent = levels[gameState.currentLevel - 1].badge;
+            
+            if (gameState.currentLevel >= 10) {
+                document.getElementById('levelCompleteMsg').textContent = '你是终极时态王者！👑';
+                document.querySelector('.continue-btn').textContent = '查看终极奖励 🏆';
+            } else {
+                document.getElementById('levelCompleteMsg').textContent = levels[gameState.currentLevel - 1].encourage;
+            }
+            updateStats();
+        }
+
+        function continueToNext() {
+            if (gameState.currentLevel >= 10) {
+                showFinalScreen();
+                return;
+            }
+            gameState.currentLevel++;
+            gameState.currentQuestion = 0;
+            gameState.lives = 3;
+            gameState.currentQuestions = shuffleArray([...levels[gameState.currentLevel - 1].questions]);
+            document.getElementById('levelCompleteScreen').classList.add('hidden');
+            document.getElementById('gameScreen').classList.remove('hidden');
+            loadQuestion();
+            saveGame();
+        }
+
+        function showFinalScreen() {
+            document.getElementById('levelCompleteScreen').classList.add('hidden');
+            document.getElementById('endScreen').classList.remove('hidden');
+            document.getElementById('endTitle').textContent = '🎉 恭喜通关！';
+            document.getElementById('finalReward').textContent = '🏆👑🎊';
+            document.getElementById('endMessage').textContent = '你已经是真正的时态小达人了！太厉害了！';
+            document.getElementById('finalScore').textContent = gameState.score;
+            renderBadges('finalBadges', gameState.earnedBadges);
+        }
+
+        function endGame(success) {
+            document.getElementById('gameScreen').classList.add('hidden');
+            document.getElementById('endScreen').classList.remove('hidden');
+            if (success) {
+                document.getElementById('endTitle').textContent = '🎉 恭喜通关！';
+                document.getElementById('endMessage').textContent = '你已经是时态小达人了！';
+            } else {
+                document.getElementById('endTitle').textContent = '😢 游戏结束';
+                document.getElementById('endMessage').textContent = '你到达了第 ' + gameState.currentLevel + ' 关！下次继续加油！';
+                document.getElementById('finalReward').textContent = '💪';
+            }
+            document.getElementById('finalScore').textContent = gameState.score;
+            renderBadges('finalBadges', gameState.earnedBadges);
+        }
+
+        function restartGame() {
+            gameState.currentLevel = 1;
+            gameState.currentQuestion = 0;
+            gameState.score = 0;
+            gameState.lives = 3;
+            document.getElementById('endScreen').classList.add('hidden');
+            document.getElementById('startScreen').classList.remove('hidden');
+            saveGame();
+            updateStats();
+        }
+
+        function resetGame() {
+            if (confirm('确定要重新开始吗？所有进度将会清除！')) {
+                localStorage.removeItem('presentContinuousGameState');
+                gameState = {
+                    currentLevel: 1,
+                    currentQuestion: 0,
+                    score: 0,
+                    lives: 3,
+                    earnedBadges: [],
+                    maxUnlockedLevel: 10,
+                    completedLevels: [],
+                    currentQuestions: []
+                };
+                updateStats();
+                showLevelSelect();
+                alert('已重新开始！加油！');
+            }
+        }
+
+        function updateProgress() {
+            const total = gameState.currentQuestions.length;
+            const current = gameState.currentQuestion;
+            const progress = (current / total) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        window.onload = function() {
+            loadGame();
+            showLevelSelect();
+            document.getElementById('startScreen').classList.remove('hidden');
+            document.getElementById('levelSelectScreen').classList.add('hidden');
+        };
+    </script>
+</body>
+</html>
