@@ -648,6 +648,12 @@
         ];
         
         let gameState = {
+            totalQuestions: 0,
+            totalCorrect: 0,
+            maxCombo: 0,
+            criticalHits: 0,
+            hintsUsed: 0,
+            monstersDefeated: 0,
             currentLevel: 1,
             currentQuestion: 0,
             score: 0,
@@ -743,6 +749,7 @@
             gameState.hp = 8;
             gameState.maxHp = 8;
             gameState.combo = 0;
+                updateBattleStats(false, false, false);
             gameState.levelQuestions = shuffleArray([...levelQuestions[level - 1]]);
             
             document.getElementById('levelSelectScreen').classList.add('hidden');
@@ -802,6 +809,8 @@
         
         function useHint() {
             if (gameState.gold < HINT_COST) return;
+            gameState.gold -= HINT_COST;
+            gameState.hintsUsed++;
             
             const q = gameState.levelQuestions[gameState.currentQuestion];
             
@@ -882,6 +891,7 @@
                 // 答对得金币
                 const goldEarned = isCritical ? 3 : 1;
                 gameState.gold += goldEarned;
+                updateBattleStats(true, isCritical, false);
                 
                 feedback.textContent = isCritical ? '🔴暴击！答对！+' + goldEarned + '金币！' : '✓ 答对！+' + goldEarned + '金币！';
                 feedback.className = 'feedback correct';
@@ -899,10 +909,12 @@
                 feedback.className = 'feedback wrong';
                 gameState.lives--;
                 gameState.combo = 0;
+                updateBattleStats(false, false, false);
                 
                 if (gameState.lives <= 0) {
                     setTimeout(() => {
                         alert('游戏结束！怪兽太强了...');
+                    showBattleReport();
                         showLevelSelect();
                     }, 1000);
                     return;
@@ -977,6 +989,7 @@
         }
         
         function showFinalVictory() {
+            showBattleReport();
             document.getElementById('victoryScreen').classList.add('hidden');
             document.getElementById('endScreen').classList.remove('hidden');
             
@@ -995,6 +1008,12 @@
         
         function restartGame() {
             gameState = {
+                totalQuestions: 0,
+                totalCorrect: 0,
+                maxCombo: 0,
+                criticalHits: 0,
+                hintsUsed: 0,
+                monstersDefeated: 0,
                 currentLevel: 1,
                 currentQuestion: 0,
                 score: 0,
@@ -1021,3 +1040,67 @@
     </script>
 </body>
 </html>
+
+        // 更新战斗统计
+        function updateBattleStats(isCorrect, isCritical, usedHint) {
+            gameState.totalQuestions++;
+            if (isCorrect) {
+                gameState.totalCorrect++;
+            }
+            if (isCritical) {
+                gameState.criticalHits++;
+            }
+            if (gameState.combo > gameState.maxCombo) {
+                gameState.maxCombo = gameState.combo;
+            }
+            if (usedHint) {
+                gameState.hintsUsed++;
+            }
+        }
+        
+        // 显示战斗报告
+        function showBattleReport() {
+            const accuracy = gameState.totalQuestions > 0 ? Math.round((gameState.totalCorrect / gameState.totalQuestions) * 100) : 0;
+            
+            let reportHTML = `
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 15px; padding: 20px; margin: 15px 0; color: white;">
+                    <h3 style="text-align: center; margin-bottom: 15px;">📊 本次战斗报告</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; text-align: center;">
+                        <div style="background: rgba(255,255,255,0.2); padding: 10px; border-radius: 10px;">
+                            <div style="font-size: 1.5em;">${gameState.totalQuestions}</div>
+                            <div style="font-size: 0.8em;">总题数</div>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.2); padding: 10px; border-radius: 10px;">
+                            <div style="font-size: 1.5em;">${accuracy}%</div>
+                            <div style="font-size: 0.8em;">正确率</div>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.2); padding: 10px; border-radius: 10px;">
+                            <div style="font-size: 1.5em;">${gameState.totalCorrect}</div>
+                            <div style="font-size: 0.8em;">答对题数</div>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.2); padding: 10px; border-radius: 10px;">
+                            <div style="font-size: 1.5em;">${gameState.criticalHits}</div>
+                            <div style="font-size: 0.8em;">暴击次数</div>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.2); padding: 10px; border-radius: 10px;">
+                            <div style="font-size: 1.5em;">${gameState.maxCombo}</div>
+                            <div style="font-size: 0.8em;">最高连击</div>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.2); padding: 10px; border-radius: 10px;">
+                            <div style="font-size: 1.5em;">${gameState.hintsUsed}</div>
+                            <div style="font-size: 0.8em;">使用提示</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // 在 endScreen 中添加战斗报告
+            const endScreen = document.getElementById('endScreen');
+            let reportDiv = document.getElementById('battleReport');
+            if (!reportDiv) {
+                reportDiv = document.createElement('div');
+                reportDiv.id = 'battleReport';
+                endScreen.insertBefore(reportDiv, endScreen.querySelector('.monster-collection'));
+            }
+            reportDiv.innerHTML = reportHTML;
+        }
