@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🦖 语法打怪大冒险 - 现在进行时</title>
+    <title>🦖 语法打怪大冒险 - 现在进行时（升级版）</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -32,13 +32,15 @@
             color: white;
         }
         .header h1 { font-size: 1.3em; margin-bottom: 8px; }
-        .stats { display: flex; justify-content: space-around; font-size: 0.95em; }
-        .stat-item { background: rgba(255,255,255,0.3); padding: 5px 10px; border-radius: 12px; }
+        .stats { display: flex; justify-content: space-around; font-size: 0.9em; flex-wrap: wrap; }
+        .stat-item { background: rgba(255,255,255,0.3); padding: 4px 8px; border-radius: 10px; margin: 2px; }
+        .stat-item.gold { background: rgba(255,215,0,0.4); }
+        .stat-item.combo { background: rgba(138,43,226,0.4); }
         .content { padding: 15px; }
         
         .battle-scene {
             position: relative;
-            height: 200px;
+            height: 240px;
             background: linear-gradient(180deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%);
             border-radius: 20px;
             margin-bottom: 15px;
@@ -52,6 +54,7 @@
             background: #2d3436;
         }
         
+        /* 玩家（超人）样式 */
         .player {
             position: absolute;
             bottom: 20px;
@@ -69,6 +72,17 @@
             100% { left: 20px; transform: scaleX(1); }
         }
         
+        /* 暴击特效 */
+        .player.critical {
+            animation: criticalAttack 0.5s ease-in-out;
+        }
+        @keyframes criticalAttack {
+            0% { left: 20px; transform: scaleX(1) scale(1); }
+            30% { left: 180px; transform: scaleX(1) scale(1.3); filter: brightness(1.5); }
+            60% { left: 200px; transform: scaleX(1) scale(1.5); }
+            100% { left: 20px; transform: scaleX(1) scale(1); }
+        }
+        
         .player-sword {
             position: absolute;
             left: 60px;
@@ -80,13 +94,83 @@
         .player-sword.slash {
             animation: swordSlash 0.4s ease-in-out;
         }
+        .player-sword.critical-slash {
+            animation: criticalSlash 0.5s ease-in-out;
+        }
         @keyframes swordSlash {
             0% { opacity: 0; left: 60px; transform: rotate(0deg); }
             30% { opacity: 1; left: 150px; transform: rotate(-30deg); }
             60% { opacity: 1; left: 180px; transform: rotate(30deg); }
             100% { opacity: 0; left: 200px; transform: rotate(0deg); }
         }
+        @keyframes criticalSlash {
+            0% { opacity: 0; left: 60px; transform: rotate(0deg) scale(1); }
+            30% { opacity: 1; left: 150px; transform: rotate(-45deg) scale(1.5); }
+            60% { opacity: 1; left: 200px; transform: rotate(45deg) scale(1.5); text-shadow: 0 0 20px gold; }
+            100% { opacity: 0; left: 220px; transform: rotate(0deg) scale(1); }
+        }
         
+        /* 玩家血条 */
+        .player-hp-bar {
+            position: absolute;
+            top: 5px;
+            left: 10px;
+            width: 70px;
+            height: 8px;
+            background: #333;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .player-hp-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00b894, #55efc4);
+            transition: width 0.3s;
+        }
+        .player-hp-label {
+            position: absolute;
+            top: 14px;
+            left: 10px;
+            font-size: 0.65em;
+            color: #55efc4;
+            font-weight: bold;
+        }
+        
+        /* 金币显示 */
+        .gold-display {
+            position: absolute;
+            top: 5px;
+            left: 90px;
+            background: rgba(255,215,0,0.3);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.75em;
+            color: #ffd700;
+            font-weight: bold;
+        }
+        
+        /* 连击显示 */
+        .combo-display {
+            position: absolute;
+            top: 25px;
+            left: 10px;
+            background: rgba(138,43,226,0.3);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.7em;
+            color: #da70d6;
+            font-weight: bold;
+        }
+        .combo-display.critical {
+            background: rgba(255,0,0,0.5);
+            color: #ff4444;
+            animation: comboPulse 0.5s infinite;
+        }
+        @keyframes comboPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        /* 怪兽样式 */
         .monster {
             position: absolute;
             bottom: 20px;
@@ -105,6 +189,17 @@
             80% { transform: translateX(5px); filter: brightness(1.2); }
             100% { transform: translateX(0); filter: brightness(1); }
         }
+        .monster.critical-hit {
+            animation: criticalMonsterHit 0.6s ease-in-out;
+        }
+        @keyframes criticalMonsterHit {
+            0% { transform: translateX(0) scale(1); filter: brightness(1); }
+            20% { transform: translateX(-30px) scale(1.2); filter: brightness(3) sepia(1) hue-rotate(-50deg); }
+            40% { transform: translateX(15px) scale(1.1); filter: brightness(2); }
+            60% { transform: translateX(-15px) scale(1.15); filter: brightness(2.5); }
+            80% { transform: translateX(8px) scale(1.05); filter: brightness(1.5); }
+            100% { transform: translateX(0) scale(1); filter: brightness(1); }
+        }
         .monster.defeated {
             animation: monsterDefeated 0.8s forwards;
         }
@@ -114,6 +209,17 @@
             100% { transform: scale(0) rotate(30deg); opacity: 0; bottom: -50px; }
         }
         
+        /* 怪兽袭击动画 */
+        .monster.attacking-player {
+            animation: monsterAttackPlayer 0.5s ease-in-out;
+        }
+        @keyframes monsterAttackPlayer {
+            0% { right: 20px; transform: scaleX(1); }
+            50% { right: 150px; transform: scaleX(-1); }
+            100% { right: 20px; transform: scaleX(1); }
+        }
+        
+        /* 攻击文字（伤害数字） */
         .attack-text {
             position: absolute;
             font-size: 1.5em;
@@ -126,12 +232,40 @@
         .attack-text.show {
             animation: attackTextAnim 0.8s forwards;
         }
+        .attack-text.critical {
+            font-size: 2em;
+            color: #ff4444;
+            text-shadow: 2px 2px 0 #ffd700, 0 0 20px #ff0000;
+        }
         @keyframes attackTextAnim {
             0% { opacity: 0; transform: translateY(0) scale(0.5); }
             30% { opacity: 1; transform: translateY(-20px) scale(1.2); }
             100% { opacity: 0; transform: translateY(-60px) scale(1); }
         }
         
+        /* 暴击文字 */
+        .critical-text {
+            position: absolute;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #ff4444;
+            text-shadow: 0 0 10px #ffd700, 2px 2px 0 #000;
+            opacity: 0;
+            z-index: 21;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .critical-text.show {
+            animation: criticalTextAnim 1s forwards;
+        }
+        @keyframes criticalTextAnim {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+            20% { opacity: 1; transform: translate(-50%, -50%) scale(1.5); }
+            100% { opacity: 0; transform: translate(-50%, -80%) scale(1); }
+        }
+        
+        /* 怪兽血条 */
         .hp-bar {
             position: absolute;
             top: 5px;
@@ -148,6 +282,7 @@
             transition: width 0.3s;
         }
         
+        /* 星星 */
         .star {
             position: absolute;
             color: #fff;
@@ -159,7 +294,7 @@
         .level-display {
             position: absolute;
             top: 5px;
-            left: 10px;
+            right: 95px;
             background: rgba(233, 69, 96, 0.9);
             color: white;
             padding: 4px 10px;
@@ -190,6 +325,32 @@
         .option-btn:hover { background: #e94560; color: white; }
         .option-btn.correct { background: #00b894; border-color: #00b894; color: white; }
         .option-btn.wrong { background: #d63031; border-color: #d63031; color: white; }
+        .option-btn.disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        /* 道具按钮 */
+        .道具栏 {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+            justify-content: center;
+        }
+        .道具-btn {
+            background: linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .道具-btn:hover:not(:disabled) { transform: scale(1.05); }
+        .道具-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        
         .feedback { text-align: center; font-size: 0.9em; margin-top: 10px; min-height: 20px; font-weight: bold; }
         .feedback.correct { color: #00b894; }
         .feedback.wrong { color: #d63031; }
@@ -233,23 +394,52 @@
         .victory-screen { text-align: center; padding: 20px; }
         .victory-screen h2 { font-size: 1.4em; color: #ffd700; margin-bottom: 15px; }
         .victory-emoji { font-size: 4em; margin: 15px 0; }
+        
+        /* 提示卡弹窗 */
+        .hint-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            z-index: 100;
+            text-align: center;
+            max-width: 80%;
+        }
+        .hint-popup h3 { color: #6c5ce7; margin-bottom: 10px; }
+        .hint-popup p { color: #333; margin-bottom: 15px; }
+        .hint-popup .hint-options { display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px; }
+        .hint-popup button { margin: 5px; }
+        .hint-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 99;
+        }
     </style>
 </head>
 <body>
     <div class="game-container">
         <div class="header">
-            <h1>🦖 语法打怪大冒险</h1>
+            <h1>🦖 语法打怪大冒险 - 升级版</h1>
             <div class="stats">
                 <div class="stat-item">⚔️ <span id="score">0</span></div>
-                <div class="stat-item">❤️ <span id="lives">3</span></div>
+                <div class="stat-item gold">💰 <span id="gold">0</span></div>
+                <div class="stat-item combo">🔥 <span id="combo">0</span>连击</div>
                 <div class="stat-item">👹 <span id="monsters">0</span>/10</div>
             </div>
         </div>
         <div class="content">
             <div class="start-screen" id="startScreen">
-                <div style="font-size: 3em; margin: 15px 0;">🦖⚔️🏰</div>
-                <h2>欢迎来到现在进行时打怪王国！</h2>
-                <p>答对问题，攻击怪兽！<br>每关一只怪兽，每答对1题 = 打1次！<br>8题全对 = 打败怪兽！<br><br>共10关，越往后怪兽越强！<br><br>开始挑战吧！⚔️</p>
+                <div style="font-size: 3em; margin: 15px 0;">🦖⚔️🏰💰</div>
+                <h2>欢迎来到语法打怪王国！</h2>
+                <p>答对问题，攻击怪兽！<br>💰 答对得金币，连击有暴击！<br>🎫 金币可以买提示卡！<br><br>8题内不被击败 = 打败怪兽！<br>连续答对3题触发🔴暴击！<br><br>共10关，越往后怪兽越强！<br><br>开始挑战吧！⚔️</p>
                 <button class="btn" onclick="showLevelSelect()">选择关卡</button>
             </div>
             
@@ -262,12 +452,28 @@
             <div class="game-screen hidden" id="gameScreen">
                 <div class="battle-scene" id="battleScene">
                     <div class="level-display" id="levelDisplay">第 1 关</div>
+                    <!-- 玩家（超人）血条 -->
+                    <div class="player-hp-bar"><div class="player-hp-fill" id="playerHpFill"></div></div>
+                    <div class="player-hp-label">🦸 HP</div>
+                    <!-- 金币显示 -->
+                    <div class="gold-display">💰 <span id="battleGold">0</span></div>
+                    <!-- 连击显示 -->
+                    <div class="combo-display" id="comboDisplay">🔥 0</div>
+                    <!-- 怪兽血条 -->
                     <div class="hp-bar"><div class="hp-fill" id="hpFill"></div></div>
                     <div class="player" id="player">🦸</div>
                     <div class="player-sword" id="playerSword">⚔️</div>
                     <div class="monster" id="monster">👾</div>
                     <div class="attack-text" id="attackText">⚔️</div>
+                    <div class="critical-text" id="criticalText">🔴暴击！</div>
                     <div class="battle-ground"></div>
+                </div>
+                
+                <!-- 道具栏 -->
+                <div class="道具栏">
+                    <button class="道具-btn" id="hintBtn" onclick="useHint()">
+                        🎫 提示卡 (10💰)
+                    </button>
                 </div>
                 
                 <div class="question-area">
@@ -283,7 +489,8 @@
                 <h2 id="victoryTitle">🎉 怪兽被打败了！</h2>
                 <p id="victoryMessage">太厉害了！</p>
                 <p style="font-size: 1.1em; color: #e94560; margin: 15px 0;">
-                    获得 <strong id="victoryScore">0</strong> 分！
+                    获得 <strong id="victoryScore">0</strong> 分！<br>
+                    奖励 💰 <strong id="victoryGold">0</strong> 金币！
                 </p>
                 <button class="btn" id="nextLevelBtn" onclick="goToNextLevel()">下一关 →</button>
                 <button class="btn" onclick="showLevelSelect()" style="background: #666;">返回选关</button>
@@ -294,12 +501,22 @@
                 <h2 id="endTitle">🎉 全部通关！</h2>
                 <p id="endMessage">你是语法王者！</p>
                 <p style="font-size: 1.2em; color: #e94560; margin: 15px 0;">
-                    总得分: <strong id="finalScore">0</strong>
+                    总得分: <strong id="finalScore">0</strong><br>
+                    总金币: 💰 <strong id="finalGold">0</strong>
                 </p>
                 <div class="monster-collection" id="monsterCollection"></div>
                 <button class="btn" onclick="restartGame()">再玩一次</button>
             </div>
         </div>
+    </div>
+    
+    <!-- 提示卡弹窗 -->
+    <div class="hint-overlay hidden" id="hintOverlay" onclick="closeHint()"></div>
+    <div class="hint-popup hidden" id="hintPopup">
+        <h3>🎫 提示卡</h3>
+        <p id="hintText">这道题可能是...</p>
+        <div class="hint-options" id="hintOptions"></div>
+        <button class="btn" onclick="closeHint()" style="background: #666;">关闭</button>
     </div>
     
     <script>
@@ -316,117 +533,117 @@
             { emoji: '👺', name: '大Boss', size: '3em' }
         ];
         
-        // 现在进行时题目（语法已检查）
+        // 题目数据
         const levelQuestions = [
-            // 第1关：现在进行时基本结构 be + doing
+            // 第一关 - I am doing
             [
-                { text: "I ___ reading a book now.", options: ["am", "is", "are"], answer: 0, hint: "I + am" },
-                { text: "She ___ sleeping.", options: ["am", "is", "are"], answer: 1, hint: "She + is" },
-                { text: "They ___ playing games.", options: ["am", "is", "are"], answer: 2, hint: "They + are" },
-                { text: "He ___ playing football.", options: ["am", "is", "are"], answer: 1, hint: "He + is" },
-                { text: "We ___ watching TV.", options: ["am", "is", "are"], answer: 2, hint: "We + are" },
-                { text: "Look! The bird ___ flying.", options: ["is", "are", "am"], answer: 0, hint: "单数用 is" },
-                { text: "Listen! She ___ singing.", options: ["is", "are", "am"], answer: 0, hint: "She + is" },
-                { text: "The baby ___ crying.", options: ["is", "are", "am"], answer: 0, hint: "单数用 is" }
+                { text: "I ___ reading a book now.", options: ["am", "is", "are"], answer: 0, hint: "I + am + doing" },
+                { text: "She ___ sleeping.", options: ["am", "is", "are"], answer: 1, hint: "She + is + doing" },
+                { text: "They ___ playing games.", options: ["am", "is", "are"], answer: 2, hint: "They + are + doing" },
+                { text: "He ___ playing football.", options: ["am", "is", "are"], answer: 1, hint: "He + is + doing" },
+                { text: "We ___ watching TV.", options: ["am", "is", "are"], answer: 2, hint: "We + are + doing" },
+                { text: "Look! The bird ___ flying.", options: ["am", "is", "are"], answer: 1, hint: "Look! + is + doing" },
+                { text: "Listen! She ___ singing.", options: ["am", "is", "are"], answer: 1, hint: "Listen! + is + doing" },
+                { text: "The baby ___ crying.", options: ["am", "is", "are"], answer: 1, hint: "The baby + is + doing" }
             ],
-            // 第2关：I am doing
-            [
-                { text: "I ___ eating breakfast.", options: ["am", "is", "are"], answer: 0, hint: "I + am" },
-                { text: "I ___ reading a book.", options: ["am reading", "is reading", "are reading"], answer: 0, hint: "I + am + doing" },
-                { text: "I ___ now.", options: ["am sleeping", "is sleeping", "are sleeping"], answer: 0, hint: "I + am + doing" },
-                { text: "I ___ my homework.", options: ["am doing", "is doing", "are doing"], answer: 0, hint: "am doing homework" },
-                { text: "Look! I ___ a kite.", options: ["am flying", "is flying", "are flying"], answer: 0, hint: "am flying a kite" },
-                { text: "I ___ in the river.", options: ["am swimming", "is swimming", "are swimming"], answer: 0, hint: "am swimming" },
-                { text: "Now I ___ to music.", options: ["am listening", "is listening", "are listening"], answer: 0, hint: "am listening to music" },
-                { text: "I ___ a picture.", options: ["am drawing", "is drawing", "are drawing"], answer: 0, hint: "am drawing a picture" }
-            ],
-            // 第3关：He/She is doing
-            [
-                { text: "He ___ playing football.", options: ["am", "is", "are"], answer: 1, hint: "He + is" },
-                { text: "She ___ a cake.", options: ["is making", "are making", "am making"], answer: 0, hint: "She + is + making" },
-                { text: "He ___ English.", options: ["is studying", "are studying", "am studying"], answer: 0, hint: "is studying English" },
-                { text: "Look! She ___ dancing.", options: ["is", "are", "am"], answer: 0, hint: "She + is" },
-                { text: "My mother ___ cooking.", options: ["is", "are", "am"], answer: 0, hint: "第三人称单数 + is" },
-                { text: "The teacher ___ writing.", options: ["is", "are", "am"], answer: 0, hint: "单数 + is" },
-                { text: "He ___ basketball.", options: ["is playing", "are playing", "am playing"], answer: 0, hint: "is playing basketball" },
-                { text: "She ___ to her friend.", options: ["is talking", "are talking", "am talking"], answer: 0, hint: "is talking to friend" }
-            ],
-            // 第4关：They are doing / We are doing
-            [
-                { text: "They ___ playing games.", options: ["am", "is", "are"], answer: 2, hint: "They + are" },
-                { text: "We ___ English.", options: ["is studying", "are studying", "am studying"], answer: 1, hint: "We + are + studying" },
-                { text: "The children ___ in the park.", options: ["is playing", "are playing", "am playing"], answer: 1, hint: "children 复数，用 are" },
-                { text: "Look! They ___ a snowman.", options: ["is making", "are making", "am making"], answer: 1, hint: "are making a snowman" },
-                { text: "They ___ breakfast.", options: ["is eating", "are eating", "am eating"], answer: 1, hint: "are eating breakfast" },
-                { text: "My friends ___ to me.", options: ["is listening", "are listening", "am listening"], answer: 1, hint: "are listening to me" },
-                { text: "They ___ on the computer.", options: ["is working", "are working", "am working"], answer: 1, hint: "are working" },
-                { text: "We ___ about the future.", options: ["is talking", "are talking", "am talking"], answer: 1, hint: "are talking about" }
-            ],
-            // 第5关：否定句 be + not + doing
+            // 第二关 - am not / is not / are not
             [
                 { text: "I ___ sleeping.", options: ["am not", "is not", "are not"], answer: 0, hint: "I + am not" },
                 { text: "She ___ eating.", options: ["am not", "is not", "are not"], answer: 1, hint: "She + is not" },
-                { text: "They ___ playing.", options: ["am not", "is not", "aren't"], answer: 2, hint: "They + aren't" },
-                { text: "He ___ working today.", options: ["am not", "isn't", "aren't"], answer: 1, hint: "He + isn't" },
-                { text: "We ___ watching TV.", options: ["am not", "is not", "aren't"], answer: 2, hint: "We + aren't" },
-                { text: "The cat ___ sleeping.", options: ["am not", "isn't", "aren't"], answer: 1, hint: "isn't" },
-                { text: "You ___ listening to me!", options: ["am not", "isn't", "aren't"], answer: 2, hint: "aren't" },
-                { text: "I ___ doing my homework.", options: ["am not", "isn't", "aren't"], answer: 0, hint: "am not" }
+                { text: "They ___ working.", options: ["am not", "is not", "are not"], answer: 2, hint: "They + are not" },
+                { text: "He ___ studying today.", options: ["am not", "is not", "are not"], answer: 1, hint: "He + is not" },
+                { text: "We ___ listening.", options: ["am not", "is not", "are not"], answer: 2, hint: "We + are not" },
+                { text: "The cat ___ sleeping now.", options: ["am not", "is not", "are not"], answer: 1, hint: "The cat + is not" },
+                { text: "I ___ cooking dinner.", options: ["am not", "is not", "are not"], answer: 0, hint: "I + am not" },
+                { text: "They ___ playing now.", options: ["am not", "is not", "are not"], answer: 2, hint: "They + are not" }
             ],
-            // 第6关：疑问句 Are you... / Is he... / Are they...
+            // 第三关 - Are you / Is he / Is she
             [
-                { text: "___ you sleeping?", options: ["Are", "Is", "Am"], answer: 0, hint: "Are you...?" },
-                { text: "___ she eating?", options: ["Are", "Is", "Am"], answer: 1, hint: "Is she...?" },
-                { text: "___ they playing?", options: ["Are", "Is", "Am"], answer: 0, hint: "Are they...?" },
-                { text: "___ he working?", options: ["Are", "Is", "Am"], answer: 1, hint: "Is he...?" },
-                { text: "Yes, I ___.", options: ["am", "is", "are"], answer: 0, hint: "Yes, I am" },
-                { text: "No, she ___.", options: ["am not", "isn't", "aren't"], answer: 1, hint: "No, she isn't" },
-                { text: "___ we doing well?", options: ["Are", "Is", "Am"], answer: 0, hint: "Are we...?" },
-                { text: "___ it raining?", options: ["Are", "Is", "Am"], answer: 1, hint: "Is it...?" }
+                { text: "___ they playing games?", options: ["Are", "Is", "Am"], answer: 0, hint: "Are + they" },
+                { text: "___ he studying English?", options: ["Are", "Is", "Am"], answer: 1, hint: "Is + he" },
+                { text: "___ she cooking?", options: ["Are", "Is", "Am"], answer: 1, hint: "Is + she" },
+                { text: "___ you listening to me?", options: ["Are", "Is", "Am"], answer: 0, hint: "Are + you" },
+                { text: "___ we going to school?", options: ["Are", "Is", "Am"], answer: 0, hint: "Are + we" },
+                { text: "___ it raining?", options: ["Are", "Is", "Am"], answer: 1, hint: "Is + it" },
+                { text: "Look! ___ the children playing?", options: ["Are", "Is", "Am"], answer: 0, hint: "Are + children" },
+                { text: "___ your mother working now?", options: ["Are", "Is", "Am"], answer: 1, hint: "Is + mother" }
             ],
-            // 第7关：现在进行时动词变化
+            // 第四关 - 现在进行时表将来
             [
-                { text: "He ___ to school.", options: ["go", "going", "goes"], answer: 1, hint: "go → going" },
-                { text: "She is ___ a song.", options: ["is singing", "singing", "sings"], answer: 1, hint: "sing → singing" },
-                { text: "They are ___ games.", options: ["play", "playing", "plays"], answer: 1, hint: "play → playing" },
-                { text: "We are ___ in the park.", options: ["run", "running", "runs"], answer: 1, hint: "run → running" },
-                { text: "I am ___ a picture.", options: ["draw", "drawing", "draws"], answer: 1, hint: "draw → drawing" },
-                { text: "She is ___ her homework.", options: ["do", "doing", "does"], answer: 1, hint: "do → doing" },
-                { text: "He is ___ to music.", options: ["listen", "listening", "listens"], answer: 1, hint: "listen → listening" },
-                { text: "They are ___ in the classroom.", options: ["study", "studying", "studies"], answer: 1, hint: "study → studying" }
+                { text: "I ___ to school tomorrow.", options: ["am going", "is going", "are going"], answer: 0, hint: "I + am going" },
+                { text: "She ___ to the party tonight.", options: ["am going", "is going", "are going"], answer: 1, hint: "She + is going" },
+                { text: "They ___ to the cinema soon.", options: ["am going", "is going", "are going"], answer: 2, hint: "They + are going" },
+                { text: "He ___ to Beijing next week.", options: ["am going", "is going", "are going"], answer: 1, hint: "He + is going" },
+                { text: "We ___ to the museum on Sunday.", options: ["am going", "is going", "are going"], answer: 2, hint: "We + are going" },
+                { text: "Now I ___ to my friend's house.", options: ["am going", "is going", "are going"], answer: 0, hint: "I + am going" },
+                { text: "Look! The bus ___ coming.", options: ["am going", "is going", "are going"], answer: 1, hint: "The bus + is coming" },
+                { text: "My parents ___ visiting us next week.", options: ["am going", "is going", "are going"], answer: 2, hint: "Parents + are going" }
             ],
-            // 第8关：现在进行时用法
+            // 第五关 - 特殊疑问词 + 进行时
             [
-                { text: "Look! The bird ___ in the sky.", options: ["is flying", "are flying", "am flying"], answer: 0, hint: "单数 + is flying" },
-                { text: "Listen! Someone ___ at the door.", options: ["is knocking", "are knocking", "am knocking"], answer: 0, hint: "单数 + is knocking" },
-                { text: "The children ___ in the garden.", options: ["is playing", "are playing", "am playing"], answer: 1, hint: "复数 + are playing" },
-                { text: "My dad ___ TV now.", options: ["is watching", "are watching", "am watching"], answer: 0, hint: "is watching TV" },
-                { text: "The sun ___ in the east.", options: ["is rising", "are rising", "am rising"], answer: 0, hint: "单数 + is rising" },
-                { text: "I ___ my best friend now.", options: ["am missing", "is missing", "are missing"], answer: 0, hint: "am missing" },
-                { text: "She ___ a letter now.", options: ["is writing", "are writing", "am writing"], answer: 0, hint: "is writing" },
-                { text: "They ___ about you.", options: ["is talking", "are talking", "am talking"], answer: 1, hint: "are talking about you" }
+                { text: "What ___ you doing?", options: ["am", "is", "are"], answer: 2, hint: "What + are + you" },
+                { text: "Where ___ he going?", options: ["am", "is", "are"], answer: 1, hint: "Where + is + he" },
+                { text: "Who ___ she waiting for?", options: ["am", "is", "are"], answer: 1, hint: "Who + is + she" },
+                { text: "What ___ they playing?", options: ["am", "is", "are"], answer: 2, hint: "What + are + they" },
+                { text: "Where ___ we going?", options: ["am", "is", "are"], answer: 2, hint: "Where + are + we" },
+                { text: "Who ___ you talking to?", options: ["am", "is", "are"], answer: 2, hint: "Who + are + you" },
+                { text: "What ___ it doing?", options: ["am", "is", "are"], answer: 1, hint: "What + is + it" },
+                { text: "Where ___ she going?", options: ["am", "is", "are"], answer: 1, hint: "Where + is + she" }
             ],
-            // 第9关：综合练习
+            // 第六关 - 复习混合
             [
-                { text: "I ___ (not/sleep).", options: ["am not sleeping", "is not sleeping", "aren't sleeping"], answer: 0, hint: "I + am not sleeping" },
-                { text: "___ you ___ (read)? Yes, I ___.", options: ["Are / reading / am", "Is / reading / is", "Are / reading / are"], answer: 0, hint: "Are you reading" },
-                { text: "She ___ (cook) dinner.", options: ["is cooking", "are cooking", "am cooking"], answer: 0, hint: "is cooking" },
-                { text: "They ___ (play) in the park.", options: ["is playing", "are playing", "am playing"], answer: 1, hint: "are playing" },
-                { text: "Look! The cat ___ (climb) the tree.", options: ["is climbing", "are climbing", "am climbing"], answer: 0, hint: "is climbing" },
-                { text: "He ___ (not/work) today.", options: ["isn't working", "aren't working", "am not working"], answer: 0, hint: "isn't working" },
-                { text: "We ___ (not/eat).", options: ["am not eating", "is not eating", "aren't eating"], answer: 2, hint: "aren't eating" },
-                { text: "___ they ___ (swim) now?", options: ["Is / swimming", "Are / swimming", "Do / swimming"], answer: 1, hint: "Are they swimming" }
+                { text: "Listen! Someone ___ at the door.", options: ["is knocking", "are knocking", "am knocking"], answer: 0, hint: "Someone + is knocking" },
+                { text: "The children ___ in the garden.", options: ["is playing", "are playing", "am playing"], answer: 1, hint: "Children + are playing" },
+                { text: "I ___ my homework now.", options: ["am doing", "is doing", "are doing"], answer: 0, hint: "I + am doing" },
+                { text: "She ___ a letter now.", options: ["am writing", "is writing", "are writing"], answer: 1, hint: "She + is writing" },
+                { text: "They ___ about the movie.", options: ["am talking", "is talking", "are talking"], answer: 2, hint: "They + are talking" },
+                { text: "Look! The cat ___ up the tree.", options: ["is climbing", "are climbing", "am climbing"], answer: 0, hint: "Cat + is climbing" },
+                { text: "We ___ English now.", options: ["am studying", "is studying", "are studying"], answer: 2, hint: "We + are studying" },
+                { text: "He ___ basketball now.", options: ["am playing", "is playing", "are playing"], answer: 1, hint: "He + is playing" }
             ],
-            // 第10关：终极挑战
+            // 第七关 - 否定疑问句
             [
-                { text: "Listen! Someone ___ (knock) at the door.", options: ["is knocking", "are knocking", "am knocking"], answer: 0, hint: "is knocking" },
-                { text: "Look! The baby ___ (cry).", options: ["is crying", "are crying", "am crying"], answer: 0, hint: "is crying" },
-                { text: "I usually ___ (go) to school, but now I ___ (wait) for the bus.", options: ["go / am waiting", "goes / is waiting", "go / is waiting"], answer: 0, hint: "usually用原形，现在进行时用am waiting" },
-                { text: "Now my mother ___ (cook) dinner.", options: ["is cooking", "are cooking", "am cooking"], answer: 0, hint: "is cooking" },
-                { text: "What ___ you ___ (do) now?", options: ["are / doing", "is / doing", "am / doing"], answer: 0, hint: "What are you doing" },
-                { text: "The children ___ (play) in the snow.", options: ["is playing", "are playing", "am playing"], answer: 1, hint: "are playing" },
-                { text: "___ she ___ (come) now?", options: ["Is / coming", "Are / coming", "Do / coming"], answer: 0, hint: "Is she coming" },
-                { text: "I ___ (not/understand).", options: ["am not understanding", "isn't understanding", "aren't understanding"], answer: 0, hint: "am not understanding" }
+                { text: "I ___ (not) eating.", options: ["am not", "is not", "are not"], answer: 0, hint: "I + am not" },
+                { text: "He ___ (not) working.", options: ["am not", "is not", "are not"], answer: 1, hint: "He + is not" },
+                { text: "We ___ (not) sleeping.", options: ["am not", "is not", "are not"], answer: 2, hint: "We + are not" },
+                { text: "She ___ (not) reading.", options: ["am not", "is not", "are not"], answer: 1, hint: "She + is not" },
+                { text: "They ___ (not) listening.", options: ["am not", "is not", "are not"], answer: 2, hint: "They + are not" },
+                { text: "The teacher ___ (not) teaching.", options: ["am not", "is not", "are not"], answer: 1, hint: "Teacher + is not" },
+                { text: "I ___ (not) watching TV now.", options: ["am not", "is not", "are not"], answer: 0, hint: "I + am not" },
+                { text: "You ___ (not) doing your work.", options: ["am not", "is not", "are not"], answer: 2, hint: "You + are not" }
+            ],
+            // 第八关 - 现在进行时表情感
+            [
+                { text: "I ___ loving this song!", options: ["am", "is", "are"], answer: 0, hint: "I + am + loving" },
+                { text: "She ___ hating waiting.", options: ["am", "is", "are"], answer: 1, hint: "She + is + hating" },
+                { text: "They ___ missing their friends.", options: ["am", "is", "are"], answer: 2, hint: "They + are + missing" },
+                { text: "He ___ needing help.", options: ["am", "is", "are"], answer: 1, hint: "He + is + needing" },
+                { text: "We ___ enjoying the party!", options: ["am", "is", "are"], answer: 2, hint: "We + are + enjoying" },
+                { text: "Look! The baby ___ smiling!", options: ["am", "is", "are"], answer: 1, hint: "Baby + is + smiling" },
+                { text: "I ___ feeling happy today!", options: ["am", "is", "are"], answer: 0, hint: "I + am + feeling" },
+                { text: "She ___ looking beautiful!", options: ["am", "is", "are"], answer: 1, hint: "She + is + looking" }
+            ],
+            // 第九关 - 综合练习
+            [
+                { text: "What ___ you ___ (do) now?", options: ["are, doing", "is, doing", "am, doing"], answer: 0, hint: "What + are + you + doing" },
+                { text: "Listen! Someone ___ (sing) in the room.", options: ["is singing", "are singing", "am singing"], answer: 0, hint: "Someone + is singing" },
+                { text: "They ___ (not, play) now.", options: ["are not playing", "is not playing", "am not playing"], answer: 0, hint: "They + are not playing" },
+                { text: "Where ___ she ___ (go)?", options: ["is, going", "are, going", "am, going"], answer: 0, hint: "Where + is + she + going" },
+                { text: "The birds ___ (fly) in the sky.", options: ["is flying", "are flying", "am flying"], answer: 1, hint: "Birds + are flying" },
+                { text: "I ___ (not, sleep).", options: ["am not", "is not", "are not"], answer: 0, hint: "I + am not" },
+                { text: "Look! The dog ___ (run) very fast.", options: ["is running", "are running", "am running"], answer: 0, hint: "Dog + is running" },
+                { text: "We ___ (study) English every day.", options: ["is studying", "are studying", "am studying"], answer: 1, hint: "We + are studying" }
+            ],
+            // 第十关 - Boss关
+            [
+                { text: "What ___ you ___ (do) now?", options: ["are, doing", "is, doing", "am, doing"], answer: 0, hint: "What + are + doing" },
+                { text: "Where ___ they ___ (go)?", options: ["are, going", "is, going", "am, going"], answer: 0, hint: "Where + are + going" },
+                { text: "The teacher ___ (not, teach) now.", options: ["is not teaching", "are not teaching", "am not teaching"], answer: 0, hint: "Teacher + is not teaching" },
+                { text: "Listen! Who ___ (knock) at the door?", options: ["is knocking", "are knocking", "am knocking"], answer: 0, hint: "Who + is + knocking" },
+                { text: "Look! The children ___ (play) in the park.", options: ["is playing", "are playing", "am playing"], answer: 1, hint: "Children + are + playing" },
+                { text: "I ___ (not, understand).", options: ["am not understanding", "is not understanding", "are not understanding"], answer: 0, hint: "I + am not understanding" },
+                { text: "She ___ (look) very happy today.", options: ["is looking", "are looking", "am looking"], answer: 0, hint: "She + is + looking" },
+                { text: "They ___ (wait) for the bus now.", options: ["is waiting", "are waiting", "am waiting"], answer: 1, hint: "They + are + waiting" }
             ]
         ];
         
@@ -434,25 +651,31 @@
             currentLevel: 1,
             currentQuestion: 0,
             score: 0,
-            lives: 3,
+            lives: 5,
             totalDefeated: 0,
             completedLevels: [],
             levelQuestions: [],
             correctInLevel: 0,
             hp: 8,
-            maxHp: 8
+            maxHp: 8,
+            gold: 0,
+            combo: 0
         };
         
+        // 暴击阈值
+        const CRITICAL_COMBO = 3;
+        const HINT_COST = 10;
+        
         function saveGame() {
-            localStorage.setItem('monsterGameStatePC2', JSON.stringify(gameState));
+            localStorage.setItem('grammarGameV3', JSON.stringify(gameState));
         }
         
         function loadGame() {
-            const saved = localStorage.getItem('monsterGameStatePC2');
+            const saved = localStorage.getItem('grammarGameV3');
             if (saved) {
                 const loaded = JSON.parse(saved);
                 gameState = { ...gameState, ...loaded };
-                gameState.lives = 3;
+                gameState.lives = 5;
             }
             updateStats();
         }
@@ -468,8 +691,22 @@
         
         function updateStats() {
             document.getElementById('score').textContent = gameState.score;
-            document.getElementById('lives').textContent = '❤️'.repeat(gameState.lives);
+            document.getElementById('gold').textContent = gameState.gold;
+            document.getElementById('combo').textContent = gameState.combo;
             document.getElementById('monsters').textContent = gameState.totalDefeated;
+            document.getElementById('battleGold').textContent = gameState.gold;
+            
+            const comboDisplay = document.getElementById('comboDisplay');
+            comboDisplay.textContent = '🔥 ' + gameState.combo;
+            if (gameState.combo >= CRITICAL_COMBO) {
+                comboDisplay.classList.add('critical');
+            } else {
+                comboDisplay.classList.remove('critical');
+            }
+            
+            // 更新提示卡按钮状态
+            const hintBtn = document.getElementById('hintBtn');
+            hintBtn.disabled = gameState.gold < HINT_COST;
         }
         
         function showLevelSelect() {
@@ -488,9 +725,9 @@
                 
                 if (gameState.completedLevels.includes(i)) {
                     btn.classList.add('completed');
-                    btn.innerHTML = monsters[i-1].emoji + '<br>✅';
+                    btn.innerHTML = monsters[i-1].emoji + '<br>✓';
                 } else {
-                    btn.innerHTML = monsters[i-1].emoji + '<br>第' + i + '关';
+                    btn.innerHTML = monsters[i-1].emoji + '<br>' + i;
                 }
                 
                 btn.onclick = () => startFromLevel(i);
@@ -501,10 +738,11 @@
         function startFromLevel(level) {
             gameState.currentLevel = level;
             gameState.currentQuestion = 0;
-            gameState.lives = 3;
+            gameState.lives = 5;
             gameState.correctInLevel = 0;
-            gameState.maxHp = 8;
             gameState.hp = 8;
+            gameState.maxHp = 8;
+            gameState.combo = 0;
             gameState.levelQuestions = shuffleArray([...levelQuestions[level - 1]]);
             
             document.getElementById('levelSelectScreen').classList.add('hidden');
@@ -516,7 +754,7 @@
             const monsterEl = document.getElementById('monster');
             monsterEl.textContent = monster.emoji;
             monsterEl.style.fontSize = monster.size;
-            monsterEl.classList.remove('hit', 'defeated');
+            monsterEl.classList.remove('hit', 'defeated', 'critical-hit');
             
             document.getElementById('levelDisplay').textContent = '第 ' + level + ' 关 - ' + monster.name;
             
@@ -531,10 +769,10 @@
             const scene = document.getElementById('battleScene');
             scene.querySelectorAll('.star').forEach(s => s.remove());
             
-            for (let i = 0; i < 12; i++) {
+            for (let i = 0; i < 15; i++) {
                 const star = document.createElement('div');
                 star.className = 'star';
-                star.textContent = '⭐';
+                star.textContent = '★';
                 star.style.left = Math.random() * 450 + 'px';
                 star.style.top = Math.random() * 100 + 'px';
                 star.style.animationDelay = Math.random() * 2 + 's';
@@ -562,6 +800,41 @@
             window.canAnswer = true;
         }
         
+        function useHint() {
+            if (gameState.gold < HINT_COST) return;
+            
+            const q = gameState.levelQuestions[gameState.currentQuestion];
+            
+            // 显示提示弹窗
+            document.getElementById('hintText').textContent = q.hint;
+            
+            const hintOptions = document.getElementById('hintOptions');
+            hintOptions.innerHTML = '';
+            
+            q.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = opt;
+                if (index === q.answer) {
+                    btn.style.borderColor = '#6c5ce7';
+                    btn.style.color = '#6c5ce7';
+                }
+                btn.onclick = () => {
+                    closeHint();
+                    checkAnswer(index, btn);
+                };
+                hintOptions.appendChild(btn);
+            });
+            
+            document.getElementById('hintOverlay').classList.remove('hidden');
+            document.getElementById('hintPopup').classList.remove('hidden');
+        }
+        
+        function closeHint() {
+            document.getElementById('hintOverlay').classList.add('hidden');
+            document.getElementById('hintPopup').classList.add('hidden');
+        }
+        
         function checkAnswer(selectedIndex, btn) {
             if (!window.canAnswer) return;
             window.canAnswer = false;
@@ -572,28 +845,45 @@
             const sword = document.getElementById('playerSword');
             const monster = document.getElementById('monster');
             const attackText = document.getElementById('attackText');
+            const criticalText = document.getElementById('criticalText');
+            
+            // 检查是否是暴击
+            const isCritical = gameState.combo >= CRITICAL_COMBO;
+            const damage = isCritical ? 2 : 1;
             
             if (selectedIndex === q.answer) {
                 btn.classList.add('correct');
                 
-                player.classList.add('attacking');
-                sword.classList.add('slash');
-                monster.classList.add('hit');
-                attackText.textContent = '⚔️ -1 HP';
+                player.classList.add(isCritical ? 'critical' : 'attacking');
+                sword.classList.add(isCritical ? 'critical-slash' : 'slash');
+                monster.classList.add(isCritical ? 'critical-hit' : 'hit');
+                
+                // 伤害数字
+                attackText.textContent = isCritical ? '⚔️ -' + damage + ' HP!' : '⚔️ -1 HP';
+                if (isCritical) {
+                    attackText.classList.add('critical');
+                    criticalText.classList.add('show');
+                }
                 attackText.classList.add('show');
                 
                 setTimeout(() => {
-                    player.classList.remove('attacking');
-                    sword.classList.remove('slash');
-                    monster.classList.remove('hit');
-                    attackText.classList.remove('show');
-                }, 800);
+                    player.classList.remove('attacking', 'critical');
+                    sword.classList.remove('slash', 'critical-slash');
+                    monster.classList.remove('hit', 'critical-hit');
+                    attackText.classList.remove('show', 'critical');
+                    criticalText.classList.remove('show');
+                }, isCritical ? 1000 : 800);
                 
-                gameState.hp--;
+                gameState.hp -= damage;
                 gameState.correctInLevel++;
                 gameState.score += 10;
+                gameState.combo++;
                 
-                feedback.textContent = '⚔️ 攻击成功！再接再厉！';
+                // 答对得金币
+                const goldEarned = isCritical ? 3 : 1;
+                gameState.gold += goldEarned;
+                
+                feedback.textContent = isCritical ? '🔴暴击！答对！+' + goldEarned + '金币！' : '✓ 答对！+' + goldEarned + '金币！';
                 feedback.className = 'feedback correct';
                 
                 updateHp();
@@ -605,13 +895,14 @@
                 
             } else {
                 btn.classList.add('wrong');
-                feedback.textContent = '💡 ' + q.hint;
+                feedback.textContent = '✗ ' + q.hint;
                 feedback.className = 'feedback wrong';
                 gameState.lives--;
+                gameState.combo = 0;
                 
                 if (gameState.lives <= 0) {
                     setTimeout(() => {
-                        alert('生命用完了！回到选择关卡～');
+                        alert('游戏结束！怪兽太强了...');
                         showLevelSelect();
                     }, 1000);
                     return;
@@ -635,7 +926,7 @@
                 if (gameState.hp <= 0) {
                     defeatMonster();
                 } else {
-                    alert('这一关没有全部答对！怪兽还在！再试一次！');
+                    alert('恭喜过关！');
                     startFromLevel(gameState.currentLevel);
                 }
                 return;
@@ -653,24 +944,30 @@
             gameState.totalDefeated++;
             gameState.completedLevels.push(gameState.currentLevel);
             
-            document.getElementById('gameScreen').classList.add('hidden');
-            document.getElementById('victoryScreen').classList.remove('hidden');
+            // 过关奖励金币
+            const levelBonus = gameState.currentLevel * 5;
+            gameState.gold += levelBonus;
             
-            document.getElementById('victoryEmoji').textContent = monster.emoji;
-            document.getElementById('victoryTitle').textContent = '🎉 ' + monster.name + '被打败了！';
-            document.getElementById('victoryMessage').textContent = '你击败了它！';
-            document.getElementById('victoryScore').textContent = gameState.score;
-            
-            if (gameState.currentLevel >= 10) {
-                setTimeout(() => showFinalVictory(), 2000);
-                document.getElementById('nextLevelBtn').style.display = 'none';
-            } else {
-                document.getElementById('nextLevelBtn').style.display = 'block';
-                document.getElementById('nextLevelBtn').textContent = '下一关 →';
-            }
-            
-            updateStats();
-            saveGame();
+            setTimeout(() => {
+                document.getElementById('gameScreen').classList.add('hidden');
+                document.getElementById('victoryScreen').classList.remove('hidden');
+                
+                document.getElementById('victoryEmoji').textContent = monster.emoji;
+                document.getElementById('victoryTitle').textContent = '🎉 ' + monster.name + '被打败了！';
+                document.getElementById('victoryScore').textContent = gameState.score;
+                document.getElementById('victoryGold').textContent = levelBonus;
+                
+                if (gameState.currentLevel >= 10) {
+                    setTimeout(() => showFinalVictory(), 2000);
+                    document.getElementById('nextLevelBtn').style.display = 'none';
+                } else {
+                    document.getElementById('nextLevelBtn').style.display = 'block';
+                    document.getElementById('nextLevelBtn').textContent = '下一关 →';
+                }
+                
+                updateStats();
+                saveGame();
+            }, 800);
         }
         
         function goToNextLevel() {
@@ -684,8 +981,8 @@
             document.getElementById('endScreen').classList.remove('hidden');
             
             document.getElementById('endTitle').textContent = '🎉 全部通关！';
-            document.getElementById('endMessage').textContent = '你是真正的语法王者！';
             document.getElementById('finalScore').textContent = gameState.score;
+            document.getElementById('finalGold').textContent = gameState.gold;
             
             const collection = document.getElementById('monsterCollection');
             collection.innerHTML = '';
@@ -701,13 +998,15 @@
                 currentLevel: 1,
                 currentQuestion: 0,
                 score: 0,
-                lives: 3,
+                lives: 5,
                 totalDefeated: 0,
                 completedLevels: [],
                 levelQuestions: [],
                 correctInLevel: 0,
                 hp: 8,
-                maxHp: 8
+                maxHp: 8,
+                gold: 0,
+                combo: 0
             };
             saveGame();
             showLevelSelect();
