@@ -1,874 +1,376 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>🦖 语法打怪大冒险PRO</title>
-    <style>
-        :root {
-            --primary: #6c5ce7;
-            --secondary: #a29bfe;
-            --success: #00b894;
-            --danger: #d63031;
-            --warning: #fdcb6e;
-            --gold: #ffd700;
-            --bg-dark: #1a1a2e;
-            --bg-card: #16213e;
-            --text: #ffffff;
-            --text-muted: #a0a0a0;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        html, body {
-            width: 100%;
-            min-height: 100vh;
-            min-height: 100dvh;
-            overflow-x: hidden;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-            color: var(--text);
-            font-size: 16px;
-            line-height: 1.5;
-            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-        }
-
-        .container {
-            max-width: 100%;
-            width: 100%;
-            margin: 0 auto;
-            padding: 12px;
-            min-height: 100vh;
-            min-height: 100dvh;
-        }
-
-        /* 屏幕适配 */
-        @media (max-width: 400px) {
-            body { font-size: 14px; }
-            .container { padding: 8px; }
-        }
-
-        /* 页面显示 */
-        .page {
-            display: none;
-            width: 100%;
-        }
-
-        .page.active {
-            display: block;
-        }
-
-        /* 卡片样式 */
-        .card {
-            background: var(--bg-card);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-        }
-
-        /* 按钮样式 - 触摸友好 */
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 48px;
-            min-width: 48px;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            touch-action: manipulation;
-        }
-
-        .btn:active {
-            transform: scale(0.95);
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            width: 100%;
-            margin-bottom: 12px;
-        }
-
-        .btn-success {
-            background: linear-gradient(135deg, var(--success), #55efc4);
-            color: white;
-        }
-
-        .btn-danger {
-            background: linear-gradient(135deg, var(--danger), #ff7675);
-            color: white;
-        }
-
-        .btn-warning {
-            background: linear-gradient(135deg, var(--warning), #ffeaa7);
-            color: #333;
-        }
-
-        .btn-gold {
-            background: linear-gradient(135deg, var(--gold), #f9ca24);
-            color: #333;
-        }
-
-        .btn-outline {
-            background: transparent;
-            border: 2px solid var(--primary);
-            color: var(--primary);
-        }
-
-        .btn-small {
-            min-height: 40px;
-            padding: 8px 16px;
-            font-size: 14px;
-        }
-
-        /* 标题 */
-        .title {
-            text-align: center;
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 20px;
-            background: linear-gradient(135deg, var(--gold), #ff9f43);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .subtitle {
-            text-align: center;
-            color: var(--text-muted);
-            margin-bottom: 20px;
-        }
-
-        /* 状态栏 */
-        .status-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px;
-            background: rgba(0,0,0,0.3);
-            border-radius: 12px;
-            margin-bottom: 16px;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .status-item {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 14px;
-        }
-
-        .status-icon {
-            font-size: 20px;
-        }
-
-        /* 生命值 */
-        .health-bar {
-            width: 100%;
-            height: 24px;
-            background: rgba(0,0,0,0.3);
-            border-radius: 12px;
-            overflow: hidden;
-            margin-bottom: 16px;
-        }
-
-        .health-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--danger), #ff7675);
-            transition: width 0.3s ease;
-            border-radius: 12px;
-        }
-
-        .health-fill.shielded {
-            background: linear-gradient(90deg, #74b9ff, #0984e3);
-        }
-
-        /* 怪物 */
-        .monster {
-            text-align: center;
-            padding: 20px;
-        }
-
-        .monster-emoji {
-            font-size: 80px;
-            animation: bounce 1s ease infinite;
-        }
-
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-
-        .monster-hp {
-            font-size: 18px;
-            margin-top: 10px;
-        }
-
-        .monster-name {
-            font-size: 20px;
-            font-weight: bold;
-            color: var(--secondary);
-        }
-
-        /* 题目 */
-        .question-box {
-            background: rgba(255,255,255,0.1);
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 16px;
-        }
-
-        .question-text {
-            font-size: 18px;
-            text-align: center;
-            margin-bottom: 16px;
-            line-height: 1.6;
-        }
-
-        .answer-options {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-
-        @media (max-width: 350px) {
-            .answer-options {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .answer-btn {
-            min-height: 56px;
-            padding: 12px;
-            font-size: 15px;
-            text-align: center;
-            word-break: break-word;
-        }
-
-        /* 计时器 */
-        .timer {
-            text-align: center;
-            font-size: 24px;
-            font-weight: bold;
-            color: var(--warning);
-            margin-bottom: 12px;
-        }
-
-        .timer.urgent {
-            color: var(--danger);
-            animation: pulse 0.5s ease infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
-
-        /* 连击 */
-        .combo {
-            text-align: center;
-            font-size: 20px;
-            font-weight: bold;
-            color: var(--gold);
-            margin-bottom: 12px;
-            min-height: 30px;
-        }
-
-        .combo.critical {
-            animation: shake 0.3s ease;
-            color: #ff6b6b;
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
-        }
-
-        /* 道具栏 */
-        .items-bar {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 16px;
-            flex-wrap: wrap;
-        }
-
-        .item-btn {
-            flex: 1;
-            min-width: 70px;
-            min-height: 56px;
-            padding: 8px;
-            font-size: 12px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .item-icon {
-            font-size: 24px;
-        }
-
-        .item-count {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            background: var(--danger);
-            color: white;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            font-size: 11px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .item-btn:disabled {
-            opacity: 0.4;
-        }
-
-        /* 关卡选择 */
-        .level-grid {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        @media (max-width: 400px) {
-            .level-grid {
-                grid-template-columns: repeat(4, 1fr);
-            }
-        }
-
-        .level-btn {
-            aspect-ratio: 1;
-            min-height: 56px;
-            font-size: 18px;
-            font-weight: bold;
-        }
-
-        .level-btn.locked {
-            background: rgba(255,255,255,0.1);
-            color: var(--text-muted);
-        }
-
-        .level-btn.completed {
-            background: linear-gradient(135deg, var(--success), #55efc4);
-        }
-
-        .level-btn.current {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            animation: glow 2s ease infinite;
-        }
-
-        @keyframes glow {
-            0%, 100% { box-shadow: 0 0 10px var(--primary); }
-            50% { box-shadow: 0 0 20px var(--primary); }
-        }
-
-        /* 商店 */
-        .shop-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-        }
-
-        .shop-item {
-            text-align: center;
-            padding: 16px;
-        }
-
-        .shop-icon {
-            font-size: 40px;
-            margin-bottom: 8px;
-        }
-
-        .shop-name {
-            font-weight: bold;
-            margin-bottom: 4px;
-        }
-
-        .shop-desc {
-            font-size: 12px;
-            color: var(--text-muted);
-            margin-bottom: 8px;
-        }
-
-        /* 成就 */
-        .achievement-grid {
-            display: grid;
-            gap: 12px;
-        }
-
-        .achievement {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 12px;
-        }
-
-        .achievement.locked {
-            opacity: 0.4;
-        }
-
-        .achievement-icon {
-            font-size: 36px;
-        }
-
-        .achievement-info {
-            flex: 1;
-        }
-
-        .achievement-name {
-            font-weight: bold;
-        }
-
-        .achievement-desc {
-            font-size: 12px;
-            color: var(--text-muted);
-        }
-
-        /* 错题本 */
-        .wrong-note {
-            padding: 12px;
-            background: rgba(214, 48, 49, 0.2);
-            border-radius: 12px;
-            margin-bottom: 12px;
-            border-left: 4px solid var(--danger);
-        }
-
-        .wrong-question {
-            font-weight: bold;
-            margin-bottom: 8px;
-        }
-
-        .wrong-answer {
-            color: var(--danger);
-            font-size: 14px;
-        }
-
-        .correct-answer {
-            color: var(--success);
-            font-size: 14px;
-        }
-
-        /* 弹窗 */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: var(--bg-card);
-            border-radius: 20px;
-            padding: 24px;
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
-            animation: slideUp 0.3s ease;
-        }
-
-        @keyframes slideUp {
-            from { transform: translateY(50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        .modal-title {
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 16px;
-        }
-
-        .modal-text {
-            margin-bottom: 20px;
-            color: var(--text-muted);
-        }
-
-        /* 底部导航 */
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: rgba(22, 33, 62, 0.95);
-            display: flex;
-            justify-content: space-around;
-            padding: 8px;
-            padding-bottom: calc(8px + env(safe-area-inset-bottom));
-            z-index: 100;
-            backdrop-filter: blur(10px);
-        }
-
-        .nav-btn {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-            padding: 8px 16px;
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            font-size: 11px;
-            cursor: pointer;
-        }
-
-        .nav-btn.active {
-            color: var(--primary);
-        }
-
-        .nav-icon {
-            font-size: 24px;
-        }
-
-        /* 内容区域留出底部导航空间 */
-        .content-with-nav {
-            padding-bottom: 80px;
-        }
-
-        /* 动画效果 */
-        .correct-flash {
-            animation: correctPulse 0.5s ease;
-        }
-
-        @keyframes correctPulse {
-            0% { background: var(--bg-card); }
-            50% { background: rgba(0, 184, 148, 0.3); }
-            100% { background: var(--bg-card); }
-        }
-
-        .wrong-flash {
-            animation: wrongPulse 0.5s ease;
-        }
-
-        @keyframes wrongPulse {
-            0% { background: var(--bg-card); }
-            50% { background: rgba(214, 48, 49, 0.3); }
-            100% { background: var(--bg-card); }
-        }
-
-        /* 伤害数字 */
-        .damage-popup {
-            position: fixed;
-            font-size: 24px;
-            font-weight: bold;
-            pointer-events: none;
-            animation: damageFloat 1s ease forwards;
-            z-index: 999;
-        }
-
-        @keyframes damageFloat {
-            0% { opacity: 1; transform: translateY(0); }
-            100% { opacity: 0; transform: translateY(-50px); }
-        }
-
-        /* 提示文字 */
-        .hint-text {
-            background: rgba(253, 203, 110, 0.2);
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 12px;
-            font-size: 14px;
-            color: var(--warning);
-        }
-
-        /* 统计 */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-        }
-
-        .stat-box {
-            text-align: center;
-            padding: 16px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 12px;
-        }
-
-        .stat-value {
-            font-size: 28px;
-            font-weight: bold;
-            color: var(--gold);
-        }
-
-        .stat-label {
-            font-size: 12px;
-            color: var(--text-muted);
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>🦖 语法打怪大冒险</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; justify-content: center; align-items: center; padding: 10px; }
+.game-container { width: 100%; max-width: 400px; background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+
+/* 头部 */
+.header { background: linear-gradient(90deg, #f093fb 0%, #f5576c 100%); padding: 15px; text-align: center; color: white; }
+.header h1 { font-size: 18px; margin-bottom: 10px; }
+.stats-bar { display: flex; justify-content: space-around; font-size: 14px; }
+.stat { background: rgba(255,255,255,0.3); padding: 5px 10px; border-radius: 15px; }
+
+/* 页面 */
+.page { display: none; padding: 15px; }
+.page.active { display: block; }
+
+/* 按钮 */
+.btn { width: 100%; padding: 15px; margin: 8px 0; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; transition: transform 0.1s; }
+.btn:active { transform: scale(0.98); }
+.btn-primary { background: linear-gradient(90deg, #667eea, #764ba2); color: white; }
+.btn-success { background: linear-gradient(90deg, #11998e, #38ef7d); color: white; }
+.btn-warning { background: linear-gradient(90deg, #f093fb, #f5576c); color: white; }
+
+/* 战斗场景 */
+.battle-scene { background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%); border-radius: 15px; padding: 20px; margin: 15px 0; position: relative; height: 180px; }
+.monster-area { text-align: center; color: white; }
+.monster-emoji { font-size: 80px; margin: 10px 0; }
+.monster-name { font-size: 18px; font-weight: bold; }
+.hp-bar { background: #333; height: 20px; border-radius: 10px; margin: 10px 0; overflow: hidden; }
+.hp-fill { background: linear-gradient(90deg, #ff6b6b, #ee5a24); height: 100%; transition: width 0.3s; }
+.combo { position: absolute; top: 10px; left: 10px; background: #ffd700; color: #333; padding: 5px 10px; border-radius: 15px; font-weight: bold; font-size: 14px; }
+
+/* 题目区域 */
+.question-box { background: #f8f9fa; border-radius: 15px; padding: 20px; margin: 15px 0; }
+.question-text { font-size: 18px; font-weight: bold; color: #333; margin-bottom: 15px; text-align: center; }
+.options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.option-btn { padding: 15px; border: 2px solid #667eea; background: white; border-radius: 10px; font-size: 16px; cursor: pointer; transition: all 0.2s; }
+.option-btn:hover { background: #667eea; color: white; }
+.option-btn.correct { background: #00b894; border-color: #00b894; color: white; }
+.option-btn.wrong { background: #d63031; border-color: #d63031; color: white; }
+.feedback { text-align: center; margin-top: 15px; font-weight: bold; min-height: 24px; }
+.feedback.correct { color: #00b894; }
+.feedback.wrong { color: #d63031; }
+
+/* 道具栏 */
+.items { display: flex; justify-content: center; gap: 10px; margin: 10px 0; }
+.item-btn { width: 60px; height: 60px; border: 2px solid #ddd; background: white; border-radius: 12px; font-size: 24px; cursor: pointer; position: relative; }
+.item-btn:active { transform: scale(0.95); }
+.item-count { position: absolute; bottom: -5px; right: -5px; background: #e94560; color: white; width: 20px; height: 20px; border-radius: 50%; font-size: 12px; display: flex; align-items: center; justify-content: center; }
+
+/* 关卡选择 */
+.level-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 15px 0; }
+.level-btn { aspect-ratio: 1; border: 2px solid #667eea; background: white; border-radius: 15px; font-size: 24px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.level-btn.completed { background: #d4edda; border-color: #00b894; }
+
+/* 商店 */
+.shop-item { display: flex; align-items: center; background: #f8f9fa; padding: 15px; border-radius: 12px; margin: 10px 0; cursor: pointer; }
+.shop-item .emoji { font-size: 40px; margin-right: 15px; }
+.shop-item .info { flex: 1; }
+.shop-item .price { color: #f39c12; font-weight: bold; }
+</style>
 </head>
 <body>
-    <div class="container">
-        <!-- 主菜单 -->
-        <div id="page-menu" class="page active">
-            <div class="content-with-nav">
-                <h1 class="title">🦖 语法打怪大冒险PRO</h1>
-                <p class="subtitle">现在进行时语法挑战</p>
-                
-                <div class="card">
-                    <div class="status-bar">
-                        <div class="status-item">
-                            <span class="status-icon">🪙</span>
-                            <span id="menu-coins">0</span>
-                        </div>
-                        <div class="status-item">
-                            <span class="status-icon">⭐</span>
-                            <span id="menu-level">Lv.1</span>
-                        </div>
-                        <div class="status-item">
-                            <span class="status-icon">🏆</span>
-                            <span id="menu-achievements">0</span>
-                        </div>
-                    </div>
-                </div>
-
-                <button class="btn btn-primary" onclick="startGame()">🎮 开始冒险</button>
-                <button class="btn btn-outline" onclick="showPage('shop')">🛒 商店</button>
-                <button class="btn btn-outline" onclick="showPage('achievements')">🏆 成就</button>
-                <button class="btn btn-outline" onclick="showPage('wrong-notes')">📖 错题本</button>
-                <button class="btn btn-outline" onclick="resetProgress()">🔄 重置进度</button>
-            </div>
-        </div>
-
-        <!-- 游戏界面 -->
-        <div id="page-game" class="page">
-            <div class="content-with-nav">
-                <div class="status-bar">
-                    <div class="status-item">
-                        <span class="status-icon">🪙</span>
-                        <span id="game-coins">0</span>
-                    </div>
-                    <div class="status-item">
-                        <span class="status-icon">🔥</span>
-                        <span id="game-combo">0</span>
-                    </div>
-                    <div class="status-item">
-                        <span class="status-icon">🛡️</span>
-                        <span id="game-shield">0</span>
-                    </div>
-                </div>
-
-                <div class="health-bar">
-                    <div class="health-fill" id="monster-hp-bar" style="width: 100%"></div>
-                </div>
-
-                <div class="monster">
-                    <div class="monster-emoji" id="monster-emoji">👾</div>
-                    <div class="monster-name" id="monster-name">小怪物</div>
-                    <div class="monster-hp"><span id="monster-hp">100</span>/<span id="monster-max-hp">100</span> HP</div>
-                </div>
-
-                <div class="combo" id="combo-display"></div>
-                <div class="timer" id="timer">30</div>
-
-                <div class="items-bar">
-                    <button class="btn btn-warning item-btn" id="item-hint" onclick="useItem('hint')">
-                        <span class="item-icon">💡</span>
-                        <span>提示</span>
-                        <span class="item-count" id="hint-count">0</span>
-                    </button>
-                    <button class="btn btn-success item-btn" id="item-potion" onclick="useItem('potion')">
-                        <span class="item-icon">🧪</span>
-                        <span>药水</span>
-                        <span class="item-count" id="potion-count">0</span>
-                    </button>
-                    <button class="btn btn-primary item-btn" id="item-shield" onclick="useItem('shield')">
-                        <span class="item-icon">🛡️</span>
-                        <span>护盾</span>
-                        <span class="item-count" id="shield-count">0</span>
-                    </button>
-                    <button class="btn btn-gold item-btn" id="item-time" onclick="useItem('time')">
-                        <span class="item-icon">⏳</span>
-                        <span>沙漏</span>
-                        <span class="item-count" id="time-count">0</span>
-                    </button>
-                </div>
-
-                <div class="question-box">
-                    <div class="question-text" id="question-text">加载中...</div>
-                    <div class="hint-text" id="hint-text" style="display: none;"></div>
-                </div>
-
-                <div class="answer-options" id="answer-options"></div>
-            </div>
-        </div>
-
-        <!-- 关卡选择 -->
-        <div id="page-levels" class="page">
-            <div class="content-with-nav">
-                <h2 class="title">🗺️ 选择关卡</h2>
-                <div class="level-grid" id="level-grid"></div>
-                <button class="btn btn-outline" onclick="showPage('menu')">返回主菜单</button>
-            </div>
-        </div>
-
-        <!-- 商店 -->
-        <div id="page-shop" class="page">
-            <div class="content-with-nav">
-                <h2 class="title">🛒 商店</h2>
-                <div class="status-bar">
-                    <div class="status-item">
-                        <span class="status-icon">🪙</span>
-                        <span id="shop-coins">0</span>
-                    </div>
-                </div>
-                <div class="shop-grid" id="shop-grid"></div>
-                <button class="btn btn-outline" onclick="showPage('menu')">返回主菜单</button>
-            </div>
-        </div>
-
-        <!-- 成就 -->
-        <div id="page-achievements" class="page">
-            <div class="content-with-nav">
-                <h2 class="title">🏆 成就</h2>
-                <div class="achievement-grid" id="achievement-grid"></div>
-                <button class="btn btn-outline" onclick="showPage('menu')">返回主菜单</button>
-            </div>
-        </div>
-
-        <!-- 错题本 -->
-        <div id="page-wrong-notes" class="page">
-            <div class="content-with-nav">
-                <h2 class="title">📖 错题本</h2>
-                <div id="wrong-notes-list"></div>
-                <button class="btn btn-outline" onclick="clearWrongNotes()">清空错题本</button>
-                <button class="btn btn-outline" onclick="showPage('menu')">返回主菜单</button>
-            </div>
-        </div>
-
-            </div>
-        </div>
+<div class="game-container">
+  <!-- 头部 -->
+  <div class="header">
+    <h1>🦖 语法打怪大冒险</h1>
+    <div class="stats-bar">
+      <span class="stat">❤️ <span id="lives">3</span></span>
+      <span class="stat">🪙 <span id="coins">0</span></span>
+      <span class="stat">👾 <span id="defeated">0</span></span>
     </div>
+  </div>
 
-    <!-- 底部导航 -->
-    <nav class="bottom-nav">
-        <button class="nav-btn" onclick="showPage('menu')" data-page="menu">
-            <span class="nav-icon">🏠</span>
-            <span>主页</span>
-        </button>
-        <button class="nav-btn" onclick="showPage('levels')" data-page="levels">
-            <span class="nav-icon">🗺️</span>
-            <span>关卡</span>
-        </button>
-        <button class="nav-btn" onclick="showPage('shop')" data-page="shop">
-            <span class="nav-icon">🛒</span>
-            <span>商店</span>
-        </button>
-    </nav>
-
-    <!-- 弹窗 -->
-    <div class="modal" id="modal">
-        <div class="modal-content">
-            <div class="modal-title" id="modal-title">标题</div>
-            <div class="modal-text" id="modal-text">内容</div>
-            <button class="btn btn-primary" onclick="closeModal()">确定</button>
-        </div>
+  <!-- 主菜单 -->
+  <div id="page-menu" class="page active">
+    <div style="text-align: center; padding: 30px 0;">
+      <div style="font-size: 80px; margin-bottom: 20px;">🦖⚔️</div>
+      <h2 style="margin-bottom: 20px;">现在进行时练习</h2>
+      <p style="color: #666; margin-bottom: 30px;">答对题目攻击怪兽！<br>连击3次触发暴击！</p>
     </div>
+    <button class="btn btn-primary" onclick="showPage('levels')">开始游戏 🎮</button>
+    <button class="btn btn-success" onclick="showPage('shop')">道具商店 🛒</button>
+  </div>
 
-    <script>
-        // 游戏数据
-        const monsters = ['👾', '👹', '👺', '👻', '👽', '🤖', '🦇', '🐉', '🦂', '🕷️'];
-        const monsterNames = ['初级小怪', '文字精灵', '语法幽灵', '时态怪物', '变形外星人', '机器人', '黑暗蝙蝠', '喷火巨龙', '沙漠蝎子', '终极BOSS'];
+  <!-- 关卡选择 -->
+  <div id="page-levels" class="page">
+    <h3 style="text-align: center; margin-bottom: 15px;">选择关卡</h3>
+    <div class="level-grid" id="level-grid"></div>
+    <button class="btn btn-warning" onclick="showPage('menu')">返回</button>
+  </div>
 
-        const questions = [
-            // Level 1: 基本现在进行时
-            { q: "She _____ (read) a book now.", options: ["read", "is reading", "reads", "reading"], answer: 1, level: 1 },
-            { q: "They _____ (play) in the park.", options: ["play", "are playing", "plays", "playing"], answer: 1, level: 1 },
-            { q: "I _____ (eat) breakfast.", options: ["eat", "am eating", "eats", "eating"], answer: 1, level: 1 },
-            { q: "He _____ (watch) TV.", options: ["watch", "is watching", "watches", "watching"], answer: 1, level: 1 },
-            { q: "We _____ (study) English.", options: ["study", "are studying", "studies", "studying"], answer: 1, level: 1 },
-            { q: "The cat _____ (sleep) now.", options: ["sleep", "is sleeping", "sleeps", "sleeping"], answer: 1, level: 1 },
-            { q: "My mother _____ (cook) dinner.", options: ["cook", "is cooking", "cooks", "cooking"], answer: 1, level: 1 },
-            { q: "The birds _____ (fly) in the sky.", options: ["fly", "are flying", "flies", "flying"], answer: 1, level: 1 },
-            
-            // Level 2: 现在进行时疑问句
-            { q: "_____ you _____ (listen) to music?", options: ["Are", "Is", "Do", "Does"], answer: 0, level: 2 },
-            { q: "What _____ he _____ (do)?", options: ["are", "is", "do", "does"], answer: 1, level: 2 },
-            { q: "_____ she _____ (come) tomorrow?", options: ["Are", "Is", "Do", "Does"], answer: 1, level: 2 },
-            { q: "Where _____ they _____ (go)?", options: ["are", "is", "do", "does"], answer: 0, level: 2 },
-            { q: "_____ they playing (football)?", options: ["Are", "Is", "Do", "Does"], answer: 0, level: 2 },
-            { q: "What _____ she _____ (watch)?", options: ["are", "is", "do", "does"], answer: 1, level: 2 },
-            { q: "_____ he writing (a letter)?", options: ["Are", "Is", "Do", "Does"], answer: 1, level: 2 },
-            { q: "How _____ it _____ (work)?", options: ["are", "is", "do", "does"], answer: 1, level: 2 },
-            
-            // Level 3: 现在进行时与现在进行时
-            { q: "Look! The boy _____ (run).", options: ["run", "is running", "runs", "running"], answer: 1, level: 3 },
-            { q: "Listen! She _____ (sing).", options: ["sing", "is singing", "sings", "singing"], answer: 1, level: 3 },
-            { q: "The baby _____ (cry) now.", options: ["cry", "is crying", "cries", "crying"], answer: 1, level: 3 },
-            { q: "I _____ (make) dinner at the moment.", options: ["make", "am making", "makes", "making"], answer: 1, level: 3 },
-            { q: "They _____ (have) class now.", options: ["have", "are having", "has", "having"], answer: 1, level: 3 },
-            { q: "We _____ (wait) for the bus.", options: ["wait", "are waiting", "waits", "waiting"], answer: 1, level: 3 },
-            { q: "The sun _____ (shine) brightly.", options: ["shine", "is shining", "shines", "shining"], answer: 1, level: 3 },
-            { q: "He _____ (write) a letter.", options: ["write", "is writing", "writes", "writing"], answer: 1, level: 3 },
-            
-            // Level 4: 用现在进行时表示将来
-            { q: "I _____ (come) tomorrow.", options: ["come", "am coming", "comes", "coming"], answer: 1, level: 4 },
-            { q: "She _____ (leave) next week.", options: ["leave", "is leaving", "leaves", "leaving"], answer: 1, level: 4 },
-            { q: "They _____ (arrive) soon.", options: ["arrive", "are arriving", "arrives", "arriving"], answer: 1, level: 4 },
-            { q: "We _____ (meet) tonight.", options: ["meet", "are meeting", "meets", "meeting"], answer: 1, level: 4 },
-            { q: "He _____ (fly) to Beijing tomorrow.", options: ["fly", "is flying", "flies", "flying"], answer: 1, level: 4 },
-            { q: "The train _____ (come) at 6 o'clock.", options: ["come", "is coming", "comes", "coming"], answer: 1, level: 4 },
-            { q: "I _____ (see) the doctor this afternoon.", options: ["see", "am seeing", "sees", "seeing"], answer: 1, level: 4 },
-            { q: "They _____ (have) a party on Saturday.", options: ["have", "are having", "has", "having"], answer: 1, level: 4 },
-            
-            // Level 5: 特殊动词现在进行时
-            { q: "I _____ (think) about the problem.", options: ["think", "am thinking", "thinks", "thinking"], answer: 1, level: 5 },
-            { q: "She _____ (have) a good time.", options: ["have", "am having", "has", "having"], answer: 1, level: 5 },
-            { q: "He _____ (see) the doctor.", options: ["see", "am seeing", "sees", "seeing"], answer: 1, level: 5 },
-            { q: "They _____ (look) at the picture.", options: ["look", "are looking", "looks", "looking"], answer: 1, level: 5 },
-            { q: "We _____ (enjoy) the movie.", options: ["enjoy", "are enjoying", "enjoys", "enjoying"], answer: 1, level: 5 },
-            { q: "I _____ (feel) tired.", options: ["feel", "am feeling", "feels", "feeling"], answer: 1, level: 5 },
-            { q: "She _____ (believe) you.", options: ["believe", "am believing", "believes", "believing"], answer: 1, level: 5 },
-            { q: "He _____ (own) a car.", options: ["own", "am owning", "owns", "owning"], answer: 1, level: 5 },
-            
-            // Level 6: 现在进行时与always等连用
-            { q: "She is always _____ (complain).", options: ["complain", "complaining", "complains", "complained"], answer: 1, level: 6 },
-            { q: "He is constantly _____ (make) mistakes.", options: ["make", "making", "makes", "made"], answer: 1, level: 6 },
-            { q: "They are always _____ (argue).", options: ["argue", "arguing", "argues", "argued"], answer: 1, level: 6 },
-            { q: "She is never _____ (give) up.", options: ["give", "giving", "gives", "gave"], answer: 1, level: 6 },
-            { q: "He is always _____ (be) late.", options: ["be", "being", "is", "was"], answer: 1, level: 6 },
-            { q: "They are often _____ (play) games.", options: ["play", "playing", "plays", "played"], answer: 1, level: 6 },
-            { q: "I am constantly _____ (forget) things.", options: ["forget", "forgetting", "forgets", "forgot"], answer: 1, level: 6 },
-            { q: "She is always _____ (help) others.", options: ["help", "helping", "helps", "helped"], answer: 1, level: 6 },
-            
-            // Level 7: 现在进行时表现在
-            { q: "It _____ (get) colder.", options: ["get", "is getting", "gets", "getting"], answer: 1, level: 7 },
-            { q: "The weather _____ (change).", options: ["change", "is changing", "changes", "changing"], answer: 1, level: 7 },
-            { q: "Everything _____ (change) so fast.", options: ["change", "is changing", "changes", "changing"], answer: 1, level: 7 },
-            { q: "The situation _____ (improve).", options: ["improve", "is improving", "improves", "improving"], answer: 1, level: 7 },
-            { q: "My English _____ (get) better.", options: ["get", "is getting", "gets", "getting"], answer: 1, level: 7 },
-            { q: "The city _____ (grow) rapidly.", options: ["grow", "is growing<!-- cache buster: Thu Apr  2 12:49:52 PM CST 2026 -->
+  <!-- 游戏页面 -->
+  <div id="page-game" class="page">
+    <div class="battle-scene">
+      <div class="combo" id="combo">⚡ 0</div>
+      <div class="monster-area">
+        <div class="monster-emoji" id="monster-emoji">👾</div>
+        <div class="monster-name" id="monster-name">小怪物</div>
+        <div class="hp-bar"><div class="hp-fill" id="hp-fill" style="width: 100%"></div></div>
+      </div>
+    </div>
+    <div class="items">
+      <button class="item-btn" onclick="useItem('hint')">💡<span class="item-count" id="hint-count">2</span></button>
+      <button class="item-btn" onclick="useItem('heal')">❤️<span class="item-count" id="heal-count">1</span></button>
+      <button class="item-btn" onclick="useItem('shield')">🛡️<span class="item-count" id="shield-count">0</span></button>
+    </div>
+    <div class="question-box">
+      <div class="question-text" id="question-text">加载中...</div>
+      <div class="options" id="options"></div>
+      <div class="feedback" id="feedback"></div>
+    </div>
+    <button class="btn btn-warning" onclick="showPage('levels')">放弃</button>
+  </div>
+
+  <!-- 商店 -->
+  <div id="page-shop" class="page">
+    <h3 style="text-align: center; margin-bottom: 15px;">🛒 道具商店</h3>
+    <div class="shop-item" onclick="buyItem('hint')">
+      <div class="emoji">💡</div>
+      <div class="info"><div><b>提示卡</b></div><div>显示答案</div></div>
+      <div class="price">🪙 30</div>
+    </div>
+    <div class="shop-item" onclick="buyItem('heal')">
+      <div class="emoji">❤️</div>
+      <div class="info"><div><b>生命药水</b></div><div>恢复生命</div></div>
+      <div class="price">🪙 50</div>
+    </div>
+    <div class="shop-item" onclick="buyItem('shield')">
+      <div class="emoji">🛡️</div>
+      <div class="info"><div><b>护盾</b></div><div>抵挡错误</div></div>
+      <div class="price">🪙 80</div>
+    </div>
+    <button class="btn btn-warning" onclick="showPage('menu')">返回</button>
+  </div>
+
+  <!-- 胜利页面 -->
+  <div id="page-victory" class="page" style="text-align: center; padding: 50px 20px;">
+    <div style="font-size: 100px; margin-bottom: 20px;">🎉</div>
+    <h2 style="margin-bottom: 20px;">击败怪兽！</h2>
+    <p style="color: #666; margin-bottom: 30px;">继续挑战下一关吧！</p>
+    <button class="btn btn-primary" onclick="showPage('levels')">下一关 →</button>
+  </div>
+</div>
+
+<script>
+const monsters = [
+  {emoji: '👾', name: '小怪物', hp: 6},
+  {emoji: '🐉', name: '幼龙', hp: 6},
+  {emoji: '🦖', name: '霸王龙', hp: 8},
+  {emoji: '🐊', name: '鳄鱼王', hp: 8},
+  {emoji: '🦑', name: '深海巨妖', hp: 8},
+  {emoji: '🦂', name: '毒蝎', hp: 8},
+  {emoji: '🐺', name: '狼人', hp: 10},
+  {emoji: '🦇', name: '吸血鬼', hp: 10},
+  {emoji: '👹', name: '恶魔', hp: 10},
+  {emoji: '👿', name: '魔王', hp: 12}
+];
+
+const questions = [
+  [['I ___ a book now.', ['am reading', 'is reading', 'are reading'], 0, 'I用am'],
+   ['She ___ in the room.', ['is dancing', 'are dancing', 'am dancing'], 0, 'She用is'],
+   ['They ___ football.', ['is playing', 'are playing', 'am playing'], 1, 'They用are'],
+   ['We ___ TV.', ['is watching', 'are watching', 'am watching'], 1, 'We用are'],
+   ['He ___ fast.', ['is running', 'are running', 'am running'], 0, 'He用is'],
+   ['The cat ___.', ['is sleeping', 'are sleeping', 'am sleeping'], 0, '单数用is'],
+   ['You ___ a song.', ['is singing', 'are singing', 'am singing'], 1, 'You用are'],
+   ['The birds ___.', ['is flying', 'are flying', 'am flying'], 1, '复数用are']],
+  [['My mother ___ dinner.', ['is cooking', 'are cooking', 'am cooking'], 0],
+   ['The students ___ homework.', ['is writing', 'are writing', 'am writing'], 1],
+   ['Tom and Jerry ___.', ['is fighting', 'are fighting', 'am fighting'], 1],
+   ['My dog ___ loudly.', ['is barking', 'are barking', 'am barking'], 0],
+   ['The teachers ___.', ['is talking', 'are talking', 'am talking'], 1],
+   ['Mary ___ a picture.', ['is drawing', 'are drawing', 'am drawing'], 0],
+   ['The children ___.', ['is laughing', 'are laughing', 'am laughing'], 1],
+   ['My father ___.', ['is working', 'are working', 'am working'], 0]],
+  [['Listen! The baby ___.', ['is crying', 'are crying', 'am crying'], 0],
+   ['Look! The girls ___.', ['is dancing', 'are dancing', 'am dancing'], 1],
+   ['Be quiet! I ___.', ['is thinking', 'are thinking', 'am thinking'], 2],
+   ['Hurry up! We ___.', ['is waiting', 'are waiting', 'am waiting'], 1],
+   ['The teacher ___.', ['is speaking', 'are speaking', 'am speaking'], 0],
+   ['The dog ___.', ['is swimming', 'are swimming', 'am swimming'], 0],
+   ['They ___ the tree.', ['is climbing', 'are climbing', 'am climbing'], 1],
+   ['A car ___.', ['is coming', 'are coming', 'am coming'], 0]],
+  [['___ you ___ English?', ['Are/studying', 'Is/studying', 'Am/studying'], 0],
+   ['___ he ___?', ['Are/sleeping', 'Is/sleeping', 'Am/sleeping'], 1],
+   ['What ___ you ___?', ['are/doing', 'is/doing', 'am/doing'], 0],
+   ['Where ___ they ___?', ['is/going', 'are/going', 'am/going'], 1],
+   ['Why ___ she ___?', ['are/crying', 'is/crying', 'am/crying'], 1],
+   ['___ it ___?', ['Are/raining', 'Is/raining', 'Am/raining'], 1],
+   ['Who ___?', ['is knocking', 'are knocking', 'am knocking'], 0],
+   ['What ___ Tom ___?', ['are/eating', 'is/eating', 'am/eating'], 1]],
+  [['I ___ TV.', ['am not watching', "isn't watching", "aren't watching"], 0],
+   ['He ___ games.', ['am not playing', "isn't playing", "aren't playing"], 1],
+   ['They ___ now.', ['am not studying', "isn't studying", "aren't studying"], 2],
+   ['She ___.', ['am not singing', "isn't singing", "aren't singing"], 1],
+   ['We ___.', ['am not swimming', "isn't swimming", "aren't swimming"], 2],
+   ['The bird ___.', ['am not flying', "isn't flying", "aren't flying"], 1],
+   ['You ___.', ['am not listening', "isn't listening", "aren't listening"], 2],
+   ['It ___.', ['am not working', "isn't working", "aren't working"], 1]],
+  [['___ they ___ lunch?', ['Are/having', 'Is/having', 'Am/having'], 0],
+   ['The sun ___.', ['is shining', 'are shining', 'am shining'], 0],
+   ['The children ___ noise.', ['is making', 'are making', 'am making'], 1],
+   ['___ you ___ OK?', ['Are/feeling', 'Is/feeling', 'Am/feeling'], 0],
+   ['My grandma ___ a story.', ['is telling', 'are telling', 'am telling'], 0],
+   ['The boys ___ bikes.', ['is riding', 'are riding', 'am riding'], 1],
+   ['Someone ___ the bell.', ['is ringing', 'are ringing', 'am ringing'], 0],
+   ['The wind ___.', ['is blowing', 'are blowing', 'am blowing'], 0]],
+  [['The baby ___.', ['is sleeping', 'are sleeping', 'am sleeping'], 0],
+   ['The train ___.', ['is arriving', 'are arriving', 'am arriving'], 0],
+   ['It ___.', ['is raining', 'are raining', 'am raining'], 0],
+   ['You ___ time.', ['is wasting', 'are wasting', 'am wasting'], 1],
+   ['I ___ you something.', ['is showing', 'are showing', 'am showing'], 2],
+   ['The plane ___.', ['is landing', 'are landing', 'am landing'], 0],
+   ['The bus ___.', ['is leaving', 'are leaving', 'am leaving'], 0],
+   ['Someone ___ piano.', ['is playing', 'are playing', 'am playing'], 0]],
+  [['Why ___ you ___?', ['are/laughing', 'is/laughing', 'am/laughing'], 0],
+   ['The dog ___ at stranger.', ['is barking', 'are barking', 'am barking'], 0],
+   ['___ students ___ notes?', ['Are/taking', 'Is/taking', 'Am/taking'], 0],
+   ['I ___ for my pen.', ['am looking', 'is looking', 'are looking'], 0],
+   ['She ___ meat.', ['am not eating', "isn't eating", "aren't eating"], 1],
+   ['The fish ___.', ['is swimming', 'are swimming', 'am swimming'], 0],
+   ['We ___ good time.', ['is having', 'are having', 'am having'], 1],
+   ['___ you ___ for me?', ['Are/waiting', 'Is/waiting', 'Am/waiting'], 0]]
+];
+
+let game = {
+  level: 1, qIndex: 0, lives: 3, coins: 0, defeated: 0,
+  combo: 0, items: {hint: 2, heal: 1, shield: 0}, hasShield: false,
+  monsterHp: 0, maxHp: 0, currentQs: []
+};
+
+function save() { localStorage.setItem('grammarGame', JSON.stringify(game)); }
+function load() {
+  const s = localStorage.getItem('grammarGame');
+  if (s) Object.assign(game, JSON.parse(s));
+  updateStats();
+}
+
+function updateStats() {
+  document.getElementById('lives').textContent = game.lives;
+  document.getElementById('coins').textContent = game.coins;
+  document.getElementById('defeated').textContent = game.defeated;
+  document.getElementById('hint-count').textContent = game.items.hint;
+  document.getElementById('heal-count').textContent = game.items.heal;
+  document.getElementById('shield-count').textContent = game.items.shield;
+}
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  if (id === 'levels') renderLevels();
+}
+
+function renderLevels() {
+  const g = document.getElementById('level-grid');
+  g.innerHTML = '';
+  for (let i = 1; i <= 10; i++) {
+    const b = document.createElement('button');
+    b.className = 'level-btn' + (i <= game.defeated + 1 ? '' : ' disabled');
+    b.style.opacity = i <= game.defeated + 1 ? '1' : '0.3';
+    b.innerHTML = monsters[i-1].emoji + '<div style="font-size:12px;">Lv.' + i + '</div>';
+    b.onclick = () => i <= game.defeated + 1 && startLevel(i);
+    g.appendChild(b);
+  }
+}
+
+function startLevel(lv) {
+  game.level = lv; game.qIndex = 0; game.combo = 0; game.hasShield = false;
+  game.maxHp = monsters[lv-1].hp; game.monsterHp = game.maxHp;
+  game.currentQs = [...questions[lv-1]].sort(() => Math.random() - 0.5);
+  showPage('game');
+  document.getElementById('monster-emoji').textContent = monsters[lv-1].emoji;
+  document.getElementById('monster-name').textContent = monsters[lv-1].name;
+  updateHp(); updateStats(); showQuestion();
+}
+
+function updateHp() {
+  document.getElementById('hp-fill').style.width = (game.monsterHp / game.maxHp * 100) + '%';
+}
+
+function showQuestion() {
+  const q = game.currentQs[game.qIndex];
+  document.getElementById('question-text').textContent = q[0];
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('feedback').className = 'feedback';
+  const opts = document.getElementById('options');
+  opts.innerHTML = '';
+  q[1].forEach((opt, i) => {
+    const b = document.createElement('button');
+    b.className = 'option-btn';
+    b.textContent = opt;
+    b.onclick = () => answer(i, b);
+    opts.appendChild(b);
+  });
+  window.answering = true;
+}
+
+function answer(idx, btn) {
+  if (!window.answering) return;
+  window.answering = false;
+  const q = game.currentQs[game.qIndex];
+  const fb = document.getElementById('feedback');
+  
+  if (idx === q[2]) {
+    btn.classList.add('correct');
+    game.combo++;
+    const crit = game.combo >= 3;
+    const dmg = crit ? 2 : 1;
+    game.monsterHp -= dmg;
+    game.coins += crit ? 10 : 5;
+    fb.textContent = crit ? '💥 暴击! -' + dmg + 'HP' : '⚔️ 攻击! -' + dmg + 'HP';
+    fb.className = 'feedback correct';
+    if (crit) game.combo = 0;
+    updateHp(); updateStats();
+    if (game.monsterHp <= 0) {
+      setTimeout(() => { game.defeated++; save(); showPage('victory'); }, 800);
+      return;
+    }
+  } else {
+    btn.classList.add('wrong');
+    if (game.hasShield) {
+      game.hasShield = false;
+      fb.textContent = '🛡️ 护盾保护!';
+      fb.className = 'feedback';
+    } else {
+      game.lives--; game.combo = 0;
+      fb.textContent = '💡 ' + (q[3] || '再想想');
+      fb.className = 'feedback wrong';
+      if (game.lives <= 0) {
+        setTimeout(() => { alert('游戏结束!'); showPage('menu'); }, 500);
+        return;
+      }
+    }
+    updateStats();
+  }
+  document.getElementById('combo').textContent = '⚡ ' + game.combo;
+  setTimeout(() => { game.qIndex++; showQuestion(); }, 1000);
+}
+
+function useItem(type) {
+  if (game.items[type] <= 0) return;
+  if (type === 'hint') {
+    game.items.hint--;
+    const q = game.currentQs[game.qIndex];
+    document.getElementById('feedback').textContent = '💡 ' + (q[3] || '选第' + (q[2]+1) + '个');
+  } else if (type === 'heal') {
+    if (game.lives >= 3) return alert('生命值已满!');
+    game.items.heal--; game.lives++;
+  } else if (type === 'shield') {
+    if (game.hasShield) return;
+    game.items.shield--; game.hasShield = true;
+    alert('🛡️ 护盾已激活!');
+  }
+  save(); updateStats();
+}
+
+function buyItem(type) {
+  const prices = {hint: 30, heal: 50, shield: 80};
+  if (game.coins < prices[type]) return alert('金币不足!');
+  game.coins -= prices[type];
+  game.items[type]++;
+  save(); updateStats();
+  alert('购买成功!');
+}
+
+window.onload = () => { load(); showPage('menu'); };
+</script>
+</body>
+</html>
